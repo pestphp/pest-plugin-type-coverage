@@ -1,11 +1,9 @@
-# Changelog
-All notable changes to this project will be documented in this file.
+# Release Notes for 2.x
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+## Unreleased
 
-## [Unreleased]
+## v2.0.0 (2023-07-19)
 
-## [Unreleased](first-commit-link)
 ### Added
-- First version
+
+- First release of plugin.
