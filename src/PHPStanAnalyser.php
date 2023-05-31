@@ -29,7 +29,7 @@ use PHPStan\Type\FileTypeMapper;
 /**
  * @internal
  */
-final class PhpstanAnalyser
+final class PHPStanAnalyser
 {
     /**
      * Creates an analyser with the rules and collectors needed for type coverage.
