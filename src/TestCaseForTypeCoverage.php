@@ -37,7 +37,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
 
         return [
             $baseDirectory.'vendor/tomasvotruba/type-coverage/config/extension.neon',
-            $baseDirectory.'resources/phpstan.neon',
+            __DIR__.'/../resources/phpstan.neon',
         ];
     }
 
