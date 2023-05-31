@@ -33,7 +33,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
     {
         $baseDirectory = file_exists(__DIR__.'/../vendor')
             ? __DIR__.'/../'
-            : __DIR__.'/../../../';
+            : __DIR__.'/../../../../';
 
         return [
             $baseDirectory.'vendor/tomasvotruba/type-coverage/config/extension.neon',
