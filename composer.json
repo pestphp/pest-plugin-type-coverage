@@ -1,5 +1,5 @@
 {
-    "name": "pestphp/pest-plugin-template",
+    "name": "pestphp/pest-plugin-type-coverage",
     "description": "My awesome plugin",
     "keywords": [
         "php",
@@ -8,23 +8,25 @@
         "unit",
         "test",
         "testing",
-        "plugin"
+        "plugin",
+        "coverage",
+        "type-coverage"
     ],
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "pestphp/pest": "^2.5",
+        "phpstan/phpstan": "1.10.15",
+        "tomasvotruba/type-coverage": "0.2.0",
+        "pestphp/pest": "^2.6.1",
         "pestphp/pest-plugin": "^2.0.1"
     },
     "autoload": {
         "psr-4": {
-            "Pest\\PluginName\\": "src/"
-        },
-        "files": [
-            "src/Autoload.php"
-        ]
+            "Pest\\TypeCoverage\\": "src/"
+        }
     },
     "require-dev": {
+        "nunomaduro/mock-final-classes": "^1.2",
         "pestphp/pest-dev-tools": "^2.9"
     },
     "minimum-stability": "dev",
@@ -46,5 +48,12 @@
             "@test:types",
             "@test:unit"
         ]
+    },
+    "extra": {
+        "pest": {
+            "plugins": [
+                "Pest\\TypeCoverage\\Plugin"
+            ]
+        }
     }
 }
