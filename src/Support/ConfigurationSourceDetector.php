@@ -32,7 +32,7 @@ final class ConfigurationSourceDetector
 
         return array_map(
             fn (FilterDirectory $directory): string => (string) realpath($directory->path()),
-            $xmlConfiguration->source()->directories()->asArray()
+            $xmlConfiguration->source()->includeDirectories()->asArray(),
         );
     }
 }

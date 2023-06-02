@@ -17,8 +17,10 @@ use function Termwind\terminal;
 
 /**
  * @internal
+ *
+ * @final
  */
-final class Plugin implements HandlesArguments
+class Plugin implements HandlesArguments
 {
     use HandleArguments;
 

@@ -15,11 +15,11 @@ final class Analyser
      * Analyse the code's type coverage.
      *
      * @param  array<int, string>  $files
-     * @param  \Closure(\Pest\TypeCoverage\Result): void  $callback
+     * @param  Closure(Result): void  $callback
      */
     public static function analyse(array $files, Closure $callback): void
     {
-        $testCase = new TestCaseForTypeCoverage('test');
+        $testCase = new TestCaseForTypeCoverage();
 
         foreach ($files as $file) {
             $errors = $testCase->gatherAnalyserErrors([$file]);

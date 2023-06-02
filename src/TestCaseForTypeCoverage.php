@@ -27,6 +27,24 @@ use TomasVotruba\TypeCoverage\Rules\ReturnTypeCoverageRule;
 final class TestCaseForTypeCoverage extends RuleTestCase
 {
     /**
+     * Creates
+     */
+    public function __construct()
+    {
+        parent::__construct('testDummy');
+
+        //
+    }
+
+    /**
+     * An example test.
+     */
+    public function testDummy(): void
+    {
+        //
+    }
+
+    /**
      * @return array<int, string>
      */
     public static function getAdditionalConfigFiles(): array
@@ -72,7 +90,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
     public function gatherAnalyserErrors(array $files): array
     {
         $files = array_map(fn (string $originalPath, string $directorySeparator = \DIRECTORY_SEPARATOR): string => $this->getFileHelper()->normalizePath($originalPath, $directorySeparator), $files);
-        $analyser = PhpstanAnalyser::make(self::getContainer(), $this->getRules(), $this->getCollectors());
+        $analyser = PHPStanAnalyser::make(self::getContainer(), $this->getRules(), $this->getCollectors());
         $analyserResult = $analyser->analyse($files, null, null, \true);
         if ($analyserResult->getInternalErrors() !== []) {
             self::fail(implode("\n", $analyserResult->getInternalErrors()));
