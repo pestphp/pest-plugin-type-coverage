@@ -1,6 +1,6 @@
 {
     "name": "pestphp/pest-plugin-type-coverage",
-    "description": "My awesome plugin",
+    "description": "The Type Coverage plugin for Pest PHP.",
     "keywords": [
         "php",
         "framework",
