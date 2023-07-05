@@ -81,7 +81,7 @@ class Plugin implements HandlesArguments
 
                 $errors = $result->errors;
 
-                usort($errors, fn ($a, $b): int => $a->line <=> $b->line);
+                usort($errors, fn (Error $a, Error $b): int => $a->line <=> $b->line);
 
                 foreach ($errors as $error) {
                     $uncoveredLines[] = $error->getShortType().$error->line;

@@ -42,8 +42,13 @@ final class PHPStanAnalyser
         $ruleRegistry = new DirectRegistry($rules);
         $collectorRegistry = new Registry($collectors);
 
+        $reflectionProvider = $container->getByType(ReflectionProvider::class);
+        $typeSpecifier = $container->getService('typeSpecifier');
+
+        $scopeFactory = TestCaseForTypeCoverage::createScopeFactory($reflectionProvider, $typeSpecifier); // @phpstan-ignore-line
+
         $nodeScopeResolver = new NodeScopeResolver(
-            $reflectionProvider = $container->getByType(ReflectionProvider::class),
+            $reflectionProvider,
             $container->getByType(InitializerExprTypeResolver::class),
             $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
             $container->getByType(ClassReflectionExtensionRegistryProvider::class),
@@ -53,9 +58,10 @@ final class PHPStanAnalyser
             $container->getByType(PhpVersion::class),
             $container->getByType(PhpDocInheritanceResolver::class),
             $container->getByType(FileHelper::class),
-            $typeSpecifier = $container->getService('typeSpecifier'), // @phpstan-ignore-line
+            $typeSpecifier, // @phpstan-ignore-line
             $container->getByType(DynamicThrowTypeExtensionProvider::class),
             $container->getByType(ReadWritePropertiesExtensionProvider::class),
+            $scopeFactory,
             false,
             true,
             [],
@@ -66,7 +72,7 @@ final class PHPStanAnalyser
         );
 
         $fileAnalyser = new FileAnalyser(
-            TestCaseForTypeCoverage::createScopeFactory($reflectionProvider, $typeSpecifier), // @phpstan-ignore-line
+            $scopeFactory,
             $nodeScopeResolver,
             $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
             $container->getByType(DependencyResolver::class),
