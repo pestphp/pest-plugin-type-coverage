@@ -101,7 +101,7 @@ class Plugin implements HandlesArguments
 
                 $totals[] = $percentage = $result->totalCoverage;
 
-                if ($this->errorsOnly && $percentage > $this->coverageMin) {
+                if ($this->errorsOnly && $percentage >= $this->coverageMin) {
                     return;
                 }
 
