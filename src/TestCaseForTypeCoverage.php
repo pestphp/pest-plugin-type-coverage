@@ -13,6 +13,7 @@ use PHPStan\Collectors\Collector;
 use PHPStan\Node\CollectedDataNode;
 use PHPStan\Rules\DirectRegistry;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleError;
 use PHPStan\Testing\RuleTestCase;
 use TomasVotruba\TypeCoverage\Collectors\ParamTypeDeclarationCollector;
 use TomasVotruba\TypeCoverage\Collectors\PropertyTypeDeclarationCollector;
@@ -26,6 +27,8 @@ use TomasVotruba\TypeCoverage\Rules\ReturnTypeCoverageRule;
  */
 final class TestCaseForTypeCoverage extends RuleTestCase
 {
+    private string $ignoreIdentifier = '@pest-type-ignore';
+
     /**
      * Creates
      */
@@ -107,12 +110,25 @@ final class TestCaseForTypeCoverage extends RuleTestCase
             foreach ($ruleRegistry->getRules($nodeType) as $rule) {
                 $ruleErrors = $rule->processNode($node, $scope);
                 foreach ($ruleErrors as $ruleError) {
-                    $actualErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
+                    if (! $this->ignored($ruleError)) {
+                        $actualErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
+                    }
                 }
             }
         }
 
         return $actualErrors;
+    }
+
+    /**
+     * Check if ignored.
+     */
+    private function ignored(RuleError $ruleError): bool
+    {
+        $file = file($ruleError->file);
+        $lineContent = $file[$ruleError->line - 1];
+
+        return strpos($lineContent, $this->ignoreIdentifier) !== false;
     }
 
     /**
