@@ -22,3 +22,19 @@ test('output', function () {
             '.. pa12 83',
         );
 });
+
+test('ignore file pattern', function () {
+    $output = new BufferedOutput();
+    $plugin = new class($output) extends Plugin
+    {
+        public function exit(int $code): never
+        {
+            throw new Exception($code);
+        }
+    };
+
+    expect(fn () => $plugin->handleArguments(['--type-coverage', '--ignore=All.php']))->toThrow(Exception::class, 0)
+        ->and($output->fetch())->not->toContain(
+            'All.php',
+        );
+});

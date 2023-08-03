@@ -30,6 +30,13 @@ class Plugin implements HandlesArguments
     private float $coverageMin = 0.0;
 
     /**
+     * File patterns to  ignore.
+     *
+     * @var array<int, string>
+     */
+    private array $ignore = [];
+
+    /**
      * Creates a new Plugin instance.
      */
     public function __construct(
@@ -52,6 +59,13 @@ class Plugin implements HandlesArguments
                 // grab the value of the --min argument
                 $this->coverageMin = (float) explode('=', $argument)[1];
             }
+
+            if (str_starts_with($argument, '--ignore=')) {
+                $this->ignore = [
+                    ...$this->ignore,
+                    ...explode(',', explode('=', $argument, 2)[1]),
+                ];
+            }
         }
 
         $source = ConfigurationSourceDetector::detect();
@@ -65,7 +79,7 @@ class Plugin implements HandlesArguments
             $this->exit(1);
         }
 
-        $files = Finder::create()->in($source)->name('*.php')->files();
+        $files = Finder::create()->in($source)->name('*.php')->notPath($this->ignore)->files();
         $totals = [];
 
         $this->output->writeln(['']);
