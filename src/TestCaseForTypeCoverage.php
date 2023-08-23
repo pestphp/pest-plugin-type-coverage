@@ -101,7 +101,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
         if ($analyserResult->getCollectedData() !== []) {
             $ruleRegistry = new DirectRegistry($this->getRules());
             $nodeType = CollectedDataNode::class;
-            $node = new CollectedDataNode($analyserResult->getCollectedData());
+            $node = new CollectedDataNode($analyserResult->getCollectedData(), true);
             $scopeFactory = $this->createScopeFactory($this->createReflectionProvider(), $this->getTypeSpecifier());
             $scope = $scopeFactory->create(ScopeContext::create('irrelevant'));
             foreach ($ruleRegistry->getRules($nodeType) as $rule) {
