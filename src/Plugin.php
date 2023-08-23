@@ -11,6 +11,7 @@ use Pest\TestSuite;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+
 use function Termwind\render;
 use function Termwind\renderUsing;
 use function Termwind\terminal;
