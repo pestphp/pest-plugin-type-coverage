@@ -17,7 +17,7 @@
         "php": "^8.1",
         "phpstan/phpstan": "^1.10.30",
         "tomasvotruba/type-coverage": "0.2.0",
-        "pestphp/pest-plugin": "^2.0.1"
+        "pestphp/pest-plugin": "^2.1.1"
     },
     "autoload": {
         "psr-4": {
@@ -25,8 +25,8 @@
         }
     },
     "require-dev": {
-        "pestphp/pest": "^2.8.3",
-        "pestphp/pest-dev-tools": "^2.12.0"
+        "pestphp/pest": "^2.16.0",
+        "pestphp/pest-dev-tools": "^2.16.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
