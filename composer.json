@@ -15,8 +15,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "phpstan/phpstan": "^1.10.30",
-        "tomasvotruba/type-coverage": "0.2.0",
+        "phpstan/phpstan": "^1.10.32",
+        "tomasvotruba/type-coverage": "^0.2.1",
         "pestphp/pest-plugin": "^2.1.1"
     },
     "autoload": {
