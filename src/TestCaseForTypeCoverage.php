@@ -27,7 +27,7 @@ use TomasVotruba\TypeCoverage\Rules\ReturnTypeCoverageRule;
  */
 final class TestCaseForTypeCoverage extends RuleTestCase
 {
-    private string $ignoreIdentifier = '@pest-type-ignore';
+    private string $ignoreIdentifier = '@pest-ignore-type';
 
     /**
      * Creates
