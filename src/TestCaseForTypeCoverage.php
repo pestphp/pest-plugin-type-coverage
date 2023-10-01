@@ -110,7 +110,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
             foreach ($ruleRegistry->getRules($nodeType) as $rule) {
                 $ruleErrors = $rule->processNode($node, $scope);
                 foreach ($ruleErrors as $ruleError) {
-                    if (! $this->ignored($ruleError)) {
+                    if (is_string($ruleError) || ! $this->ignored($ruleError)) {
                         $actualErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
                     }
                 }
@@ -125,7 +125,20 @@ final class TestCaseForTypeCoverage extends RuleTestCase
      */
     private function ignored(RuleError $ruleError): bool
     {
+        if (! property_exists($ruleError, 'file') || ! property_exists($ruleError, 'line')) {
+            return false;
+        }
+
         $file = file($ruleError->file);
+
+        if ($file === false) {
+            return false;
+        }
+
+        if (! array_key_exists($ruleError->line - 1, $file)) {
+            return false;
+        }
+
         $lineContent = $file[$ruleError->line - 1];
 
         return strpos($lineContent, $this->ignoreIdentifier) !== false;
