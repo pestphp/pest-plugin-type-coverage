@@ -113,6 +113,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
                 foreach ($ruleErrors as $ruleError) {
                     if ($this->ignored($ruleError)) {
                         $ignoredErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
+
                         continue;
                     }
 

@@ -15,6 +15,7 @@ final class Result
      * Creates a new result instance.
      *
      * @param  array<int, Error>  $errors
+     * @param  array<int, Error>  $errorsIgnored
      */
     private function __construct(
         public readonly string $file,
@@ -32,7 +33,7 @@ final class Result
      * Creates a new result instance from the given PHPStan errors.
      *
      * @param  array<int, PHPStanError>  $phpstanErrors
-     * @param array<int, PHPStanError> $phpstanErrorsIgnored
+     * @param  array<int, PHPStanError>  $phpstanErrorsIgnored
      */
     public static function fromPHPStanErrors(string $file, array $phpstanErrors, array $phpstanErrorsIgnored): self
     {
