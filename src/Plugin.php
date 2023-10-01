@@ -65,7 +65,14 @@ class Plugin implements HandlesArguments
 
                     $this->exit(1);
                 }
-                ini_set('memory_limit', $memoryLimit);
+                if (ini_set('memory_limit', $memoryLimit) === false) {
+                    View::render('components.badge', [
+                        'type' => 'ERROR',
+                        'content' => 'Failed to set memory limit: '.$memoryLimit,
+                    ]);
+
+                    $this->exit(1);
+                }
             }
         }
 
