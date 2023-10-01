@@ -53,6 +53,20 @@ class Plugin implements HandlesArguments
                 // grab the value of the --min argument
                 $this->coverageMin = (float) explode('=', $argument)[1];
             }
+
+            if (str_starts_with($argument, '--memory-limit')) {
+                $memoryLimit = explode('=', $argument)[1] ?? '';
+
+                if (preg_match('/^-?\d+[kMG]?$/', $memoryLimit) !== 1) {
+                    View::render('components.badge', [
+                        'type' => 'ERROR',
+                        'content' => 'Invalid memory limit: '.$memoryLimit,
+                    ]);
+
+                    $this->exit(1);
+                }
+                ini_set('memory_limit', $memoryLimit);
+            }
         }
 
         $source = ConfigurationSourceDetector::detect();
