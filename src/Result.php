@@ -19,6 +19,7 @@ final class Result
     private function __construct(
         public readonly string $file,
         public readonly array $errors,
+        public readonly array $errorsIgnored,
         public readonly int $propertyCoverage,
         public readonly int $paramCoverage,
         public readonly int $returnTypeCoverage,
@@ -31,19 +32,25 @@ final class Result
      * Creates a new result instance from the given PHPStan errors.
      *
      * @param  array<int, PHPStanError>  $phpstanErrors
+     * @param array<int, PHPStanError> $phpstanErrorsIgnored
      */
-    public static function fromPHPStanErrors(string $file, array $phpstanErrors): self
+    public static function fromPHPStanErrors(string $file, array $phpstanErrors, array $phpstanErrorsIgnored): self
     {
-        $phpstanErrors = array_filter(
-            $phpstanErrors,
-            static fn (PHPStanError $error): bool => str_contains($error->getMessage(), 'property types')
-                || str_contains($error->getMessage(), 'param types')
-                || str_contains($error->getMessage(), 'return types'),
-        );
+        $filter = static fn (PHPStanError $error): bool => str_contains($error->getMessage(), 'property types')
+            || str_contains($error->getMessage(), 'param types')
+            || str_contains($error->getMessage(), 'return types');
+
+        $phpstanErrors = array_filter($phpstanErrors, $filter);
+        $phpstanErrorsIgnored = array_filter($phpstanErrorsIgnored, $filter);
 
         $errors = array_map(
             static fn (PHPStanError $error): Error => Error::fromPHPStanError($error),
             $phpstanErrors,
+        );
+
+        $errorsIgnored = array_map(
+            static fn (PHPStanError $error): Error => Error::fromPHPStanError($error),
+            $phpstanErrorsIgnored,
         );
 
         $propertyCoverage = 100;
@@ -65,6 +72,7 @@ final class Result
         return new self(
             $file,
             $errors,
+            $errorsIgnored,
             $propertyCoverage,
             $paramCoverage,
             $returnTypeCoverage,

@@ -22,9 +22,9 @@ final class Analyser
         $testCase = new TestCaseForTypeCoverage();
 
         foreach ($files as $file) {
-            $errors = $testCase->gatherAnalyserErrors([$file]);
+            [$errors, $ignored] = $testCase->gatherAnalyserErrors([$file]);
 
-            $callback(Result::fromPHPStanErrors($file, $errors));
+            $callback(Result::fromPHPStanErrors($file, $errors, $ignored));
         }
     }
 }

@@ -100,6 +100,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
         }
 
         $actualErrors = $analyserResult->getUnorderedErrors();
+        $ignoredErrors = [];
         $ruleErrorTransformer = new RuleErrorTransformer();
         if ($analyserResult->getCollectedData() !== []) {
             $ruleRegistry = new DirectRegistry($this->getRules());
@@ -110,21 +111,28 @@ final class TestCaseForTypeCoverage extends RuleTestCase
             foreach ($ruleRegistry->getRules($nodeType) as $rule) {
                 $ruleErrors = $rule->processNode($node, $scope);
                 foreach ($ruleErrors as $ruleError) {
-                    if (is_string($ruleError) || ! $this->ignored($ruleError)) {
-                        $actualErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
+                    if ($this->ignored($ruleError)) {
+                        $ignoredErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
+                        continue;
                     }
+
+                    $actualErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
                 }
             }
         }
 
-        return $actualErrors;
+        return [$actualErrors, $ignoredErrors];
     }
 
     /**
      * Check if ignored.
      */
-    private function ignored(RuleError $ruleError): bool
+    private function ignored(RuleError|string $ruleError): bool
     {
+        if (is_string($ruleError)) {
+            return false;
+        }
+
         if (! property_exists($ruleError, 'file') || ! property_exists($ruleError, 'line')) {
             return false;
         }
