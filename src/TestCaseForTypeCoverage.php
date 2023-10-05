@@ -6,6 +6,7 @@ namespace Pest\TypeCoverage;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
+use PHPStan\Analyser\Error;
 use PHPStan\Analyser\RuleErrorTransformer;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\ScopeContext;
@@ -28,6 +29,11 @@ use TomasVotruba\TypeCoverage\Rules\ReturnTypeCoverageRule;
 final class TestCaseForTypeCoverage extends RuleTestCase
 {
     private string $ignoreIdentifier = '@pest-ignore-type';
+
+    /**
+     * @var array<int, Error>
+     */
+    private array $ignoredErrors = [];
 
     /**
      * Creates
@@ -100,7 +106,6 @@ final class TestCaseForTypeCoverage extends RuleTestCase
         }
 
         $actualErrors = $analyserResult->getUnorderedErrors();
-        $ignoredErrors = [];
         $ruleErrorTransformer = new RuleErrorTransformer();
         if ($analyserResult->getCollectedData() !== []) {
             $ruleRegistry = new DirectRegistry($this->getRules());
@@ -112,7 +117,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
                 $ruleErrors = $rule->processNode($node, $scope);
                 foreach ($ruleErrors as $ruleError) {
                     if ($this->ignored($ruleError)) {
-                        $ignoredErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
+                        $this->ignoredErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, $nodeType, $node->getLine());
 
                         continue;
                     }
@@ -122,7 +127,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
             }
         }
 
-        return [$actualErrors, $ignoredErrors];
+        return $actualErrors;
     }
 
     /**
@@ -151,6 +156,26 @@ final class TestCaseForTypeCoverage extends RuleTestCase
         $lineContent = $file[$ruleError->line - 1];
 
         return strpos($lineContent, $this->ignoreIdentifier) !== false;
+    }
+
+    /**
+     * Returns the ignored errors.
+     * Used by the Analyser class to get the ignored errors after each file is analysed.
+     *
+     * @return Error[]
+     */
+    public function getIgnoredErrors(): array
+    {
+        return $this->ignoredErrors;
+    }
+
+    /**
+     * Resets the ignored errors.
+     * Used by the Analyser class to reset the ignored errors after each file is analysed.
+     */
+    public function resetIgnoredErrors(): void
+    {
+        $this->ignoredErrors = [];
     }
 
     /**
