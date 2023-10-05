@@ -23,8 +23,10 @@ final class Analyser
 
         foreach ($files as $file) {
             $errors = $testCase->gatherAnalyserErrors([$file]);
+            $ignored = $testCase->getIgnoredErrors();
+            $testCase->resetIgnoredErrors();
 
-            $callback(Result::fromPHPStanErrors($file, $errors));
+            $callback(Result::fromPHPStanErrors($file, $errors, $ignored));
         }
     }
 }
