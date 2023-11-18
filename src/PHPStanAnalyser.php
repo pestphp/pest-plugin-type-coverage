@@ -17,11 +17,11 @@ use PHPStan\DependencyInjection\Reflection\ClassReflectionExtensionRegistryProvi
 use PHPStan\DependencyInjection\Type\DynamicThrowTypeExtensionProvider;
 use PHPStan\File\FileHelper;
 use PHPStan\Php\PhpVersion;
-use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
 use PHPStan\PhpDoc\PhpDocInheritanceResolver;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
 use PHPStan\Rules\DirectRegistry;
 use PHPStan\Rules\Properties\ReadWritePropertiesExtensionProvider;
 use PHPStan\Rules\Rule;
