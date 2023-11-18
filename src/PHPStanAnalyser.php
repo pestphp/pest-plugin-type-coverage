@@ -17,6 +17,7 @@ use PHPStan\DependencyInjection\Reflection\ClassReflectionExtensionRegistryProvi
 use PHPStan\DependencyInjection\Type\DynamicThrowTypeExtensionProvider;
 use PHPStan\File\FileHelper;
 use PHPStan\Php\PhpVersion;
+use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
 use PHPStan\PhpDoc\PhpDocInheritanceResolver;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\InitializerExprTypeResolver;
@@ -56,6 +57,7 @@ final class PHPStanAnalyser
             $container->getByType(FileTypeMapper::class),
             $container->getByType(StubPhpDocProvider::class),
             $container->getByType(PhpVersion::class),
+            $container->getByType(SignatureMapProvider::class),
             $container->getByType(PhpDocInheritanceResolver::class),
             $container->getByType(FileHelper::class),
             $typeSpecifier, // @phpstan-ignore-line
