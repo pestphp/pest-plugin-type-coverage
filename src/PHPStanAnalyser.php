@@ -68,6 +68,7 @@ final class PHPStanAnalyser
             true,
             [],
             [],
+            [],
             true,
             true,
             false,
