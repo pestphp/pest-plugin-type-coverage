@@ -21,6 +21,7 @@ use PHPStan\PhpDoc\PhpDocInheritanceResolver;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
 use PHPStan\Rules\DirectRegistry;
 use PHPStan\Rules\Properties\ReadWritePropertiesExtensionProvider;
 use PHPStan\Rules\Rule;
@@ -56,6 +57,7 @@ final class PHPStanAnalyser
             $container->getByType(FileTypeMapper::class),
             $container->getByType(StubPhpDocProvider::class),
             $container->getByType(PhpVersion::class),
+            $container->getByType(SignatureMapProvider::class),
             $container->getByType(PhpDocInheritanceResolver::class),
             $container->getByType(FileHelper::class),
             $typeSpecifier, // @phpstan-ignore-line
@@ -64,6 +66,7 @@ final class PHPStanAnalyser
             $scopeFactory,
             false,
             true,
+            [],
             [],
             [],
             true,
