@@ -31,6 +31,11 @@ class Plugin implements HandlesArguments
     private float $coverageMin = 0.0;
 
     /**
+     * Whether to only show errors.
+     */
+    private bool $errorsOnly = false;
+
+    /**
      * Creates a new Plugin instance.
      */
     public function __construct(
@@ -52,6 +57,10 @@ class Plugin implements HandlesArguments
             if (str_starts_with($argument, '--min')) {
                 // grab the value of the --min argument
                 $this->coverageMin = (float) explode('=', $argument)[1];
+            }
+
+            if ($argument === '--errors-only') {
+                $this->errorsOnly = true;
             }
         }
 
@@ -108,6 +117,10 @@ class Plugin implements HandlesArguments
                 }
 
                 $totals[] = $percentage = $result->totalCoverage;
+
+                if ($this->errorsOnly && $percentage >= $this->coverageMin) {
+                    return;
+                }
 
                 renderUsing($this->output);
                 render(<<<HTML
