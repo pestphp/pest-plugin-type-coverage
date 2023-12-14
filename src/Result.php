@@ -77,7 +77,7 @@ final class Result
             $propertyCoverage,
             $paramCoverage,
             $returnTypeCoverage,
-            (int) round(($propertyCoverage + $paramCoverage + $returnTypeCoverage) / 3),
+            (int) round(($propertyCoverage + $paramCoverage + $returnTypeCoverage) / 3, mode: PHP_ROUND_HALF_DOWN),
         );
     }
 }
