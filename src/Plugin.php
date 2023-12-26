@@ -8,6 +8,9 @@ use Pest\Contracts\Plugins\HandlesArguments;
 use Pest\Plugins\Concerns\HandleArguments;
 use Pest\Support\View;
 use Pest\TestSuite;
+use Pest\TypeCoverage\Logging\JsonLogger;
+use Pest\TypeCoverage\Contracts\Logger;
+use Pest\TypeCoverage\Logging\NullLogger;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
@@ -31,12 +34,17 @@ class Plugin implements HandlesArguments
     private float $coverageMin = 0.0;
 
     /**
+     * The logger used to output type coverage to a file.
+     */
+    private Logger $coverageLogger;
+
+    /**
      * Creates a new Plugin instance.
      */
     public function __construct(
         private readonly OutputInterface $output
     ) {
-        // ..
+        $this->coverageLogger = new NullLogger('', []);
     }
 
     /**
@@ -44,7 +52,7 @@ class Plugin implements HandlesArguments
      */
     public function handleArguments(array $arguments): array
     {
-        if (! $this->hasArgument('--type-coverage', $arguments)) {
+        if (! $this->hasArgument('--type-coverage', $arguments) && ! $this->hasArgument('--type-coverage-json', $arguments)) {
             return $arguments;
         }
 
@@ -52,6 +60,11 @@ class Plugin implements HandlesArguments
             if (str_starts_with($argument, '--min')) {
                 // grab the value of the --min argument
                 $this->coverageMin = (float) explode('=', $argument)[1];
+            }
+
+            if (str_starts_with($argument, '--type-coverage-json')) {
+                // grab the value of the --type-coverage-json argument
+                $this->coverageLogger = new JsonLogger(explode('=', $argument)[1], ['coverageMin' => $this->coverageMin]);
             }
         }
 
@@ -96,6 +109,8 @@ class Plugin implements HandlesArguments
 
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';
 
+                $this->coverageLogger->append( $path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage );
+
                 $uncoveredLines = implode(', ', $uncoveredLines);
                 $uncoveredLinesIgnored = implode(', ', $uncoveredLinesIgnored);
                 // if there are uncovered lines, add a space before the ignored lines
@@ -121,6 +136,8 @@ class Plugin implements HandlesArguments
         );
 
         $coverage = array_sum($totals) / count($totals);
+
+        $this->coverageLogger->output();
 
         $exitCode = (int) ($coverage < $this->coverageMin);
 
