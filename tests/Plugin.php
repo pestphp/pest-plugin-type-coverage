@@ -54,6 +54,12 @@ test( 'it can output to json', function () {
                     "percentage"            => 100,
                 ],
                 [
+                    "file"                  => "src/Contracts/Logger.php",
+                    "uncoveredLines"        => [],
+                    "uncoveredLinesIgnored" => [],
+                    "percentage"            => 100,
+                ],
+                [
                     "file"                  => "src/Plugin.php",
                     "uncoveredLines"        => [],
                     "uncoveredLinesIgnored" => [],
@@ -84,7 +90,7 @@ test( 'it can output to json', function () {
                     "percentage"            => 100,
                 ],
                 [
-                    "file"                  => "src/Logging/Logger.php",
+                    "file"                  => "src/Logging/NullLogger.php",
                     "uncoveredLines"        => [],
                     "uncoveredLinesIgnored" => [],
                     "percentage"            => 100,
@@ -120,7 +126,7 @@ test( 'it can output to json', function () {
                     "percentage"            => 83,
                 ],
             ],
-            'total' => 87.15,
+            'total' => 88.07,
     ]);
 
     unlink( __DIR__ . '/../test.json' );
