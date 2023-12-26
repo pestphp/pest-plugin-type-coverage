@@ -8,6 +8,8 @@ use Pest\Contracts\Plugins\HandlesArguments;
 use Pest\Plugins\Concerns\HandleArguments;
 use Pest\Support\View;
 use Pest\TestSuite;
+use Pest\TypeCoverage\Logging\JsonLogger;
+use Pest\TypeCoverage\Logging\Logger;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
@@ -31,9 +33,9 @@ class Plugin implements HandlesArguments
     private float $coverageMin = 0.0;
 
     /**
-     * The path to output coverage to.
+     * The logger used to output type coverage to a file.
      */
-    private ?string $coverageOutputPath = null;
+    private ?Logger $coverageLogger = null;
 
     /**
      * Creates a new Plugin instance.
@@ -61,7 +63,7 @@ class Plugin implements HandlesArguments
 
             if (str_starts_with($argument, '--type-coverage-json')) {
                 // grab the value of the --type-coverage-json argument
-                $this->coverageOutputPath = explode('=', $argument)[1];
+                $this->coverageLogger = new JsonLogger(explode('=', $argument)[1], ['coverageMin' => $this->coverageMin]);
             }
         }
 
@@ -78,13 +80,12 @@ class Plugin implements HandlesArguments
 
         $files = Finder::create()->in($source)->name('*.php')->files();
         $totals = [];
-        $logs = [];
 
         $this->output->writeln(['']);
 
         Analyser::analyse(
             array_keys(iterator_to_array($files)),
-            function (Result $result) use (&$totals, &$logs): void {
+            function (Result $result) use (&$totals): void {
                 $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
 
                 $truncateAt = max(1, terminal()->width() - 12);
@@ -107,6 +108,8 @@ class Plugin implements HandlesArguments
 
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';
 
+                $this->coverageLogger?->append( $path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage );
+
                 $uncoveredLines = implode(', ', $uncoveredLines);
                 $uncoveredLinesIgnored = implode(', ', $uncoveredLinesIgnored);
                 // if there are uncovered lines, add a space before the ignored lines
@@ -128,31 +131,12 @@ class Plugin implements HandlesArguments
                     <span class="text-{$color}">$uncoveredLines{$uncoveredLinesIgnored} {$percentage}%</span>
                 </div>
                 HTML);
-
-                if($this->coverageOutputPath !== null) {
-                    $logs[] = [
-                        'file' => $path,
-                        'uncoveredLines' => $uncoveredLines,
-                        'uncoveredLinesIgnored' => $uncoveredLinesIgnored,
-                        'percentage' => $percentage,
-                    ];
-                }
             },
         );
 
         $coverage = array_sum($totals) / count($totals);
 
-        if($this->coverageOutputPath !== null) {
-            $json = json_encode([
-                'format' => 'pest',
-                'settings' => [
-                    'coverage_min' => $this->coverageMin,
-                ],
-                'data' => $logs,
-                'total' => round($coverage, 2)
-            ], JSON_PRETTY_PRINT);
-            file_put_contents($this->coverageOutputPath, $json);
-        }
+        $this->coverageLogger?->output();
 
         $exitCode = (int) ($coverage < $this->coverageMin);
 
