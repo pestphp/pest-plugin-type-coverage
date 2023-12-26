@@ -49,7 +49,7 @@ class Plugin implements HandlesArguments
      */
     public function handleArguments(array $arguments): array
     {
-        if (! $this->hasArgument('--type-coverage', $arguments)) {
+        if (! $this->hasArgument('--type-coverage', $arguments) && ! $this->hasArgument('--type-coverage-json', $arguments)) {
             return $arguments;
         }
 
@@ -59,8 +59,8 @@ class Plugin implements HandlesArguments
                 $this->coverageMin = (float) explode('=', $argument)[1];
             }
 
-            if (str_starts_with($argument, '--type-coverage-output')) {
-                // grab the value of the --type-coverage-output argument
+            if (str_starts_with($argument, '--type-coverage-json')) {
+                // grab the value of the --type-coverage-json argument
                 $this->coverageOutputPath = explode('=', $argument)[1];
             }
         }

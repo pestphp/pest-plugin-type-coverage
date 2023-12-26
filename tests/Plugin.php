@@ -32,7 +32,7 @@ test( 'it can output to json', function () {
         }
     };
 
-    expect( fn() => $plugin->handleArguments( [ '--type-coverage', '--type-coverage-output=test.json' ] ) )->toThrow( Exception::class, 0 );
+    expect( fn() => $plugin->handleArguments( [ '--type-coverage', '--type-coverage-json=test.json' ] ) )->toThrow( Exception::class, 0 );
 
     expect( __DIR__ . '/../test.json' )->toBeReadableFile();
     expect( file_get_contents( __DIR__ . '/../test.json' ) )->json()->toMatchArray( [
