@@ -4,6 +4,8 @@ declare( strict_types=1 );
 
 namespace Pest\TypeCoverage\Logging;
 
+use Pest\TypeCoverage\Contracts\Logger;
+
 /**
  * @internal
  *

@@ -9,7 +9,8 @@ use Pest\Plugins\Concerns\HandleArguments;
 use Pest\Support\View;
 use Pest\TestSuite;
 use Pest\TypeCoverage\Logging\JsonLogger;
-use Pest\TypeCoverage\Logging\Logger;
+use Pest\TypeCoverage\Contracts\Logger;
+use Pest\TypeCoverage\Logging\NullLogger;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
@@ -35,7 +36,7 @@ class Plugin implements HandlesArguments
     /**
      * The logger used to output type coverage to a file.
      */
-    private ?Logger $coverageLogger = null;
+    private Logger $coverageLogger;
 
     /**
      * Creates a new Plugin instance.
@@ -43,7 +44,7 @@ class Plugin implements HandlesArguments
     public function __construct(
         private readonly OutputInterface $output
     ) {
-        // ..
+        $this->coverageLogger = new NullLogger('', []);
     }
 
     /**
@@ -108,7 +109,7 @@ class Plugin implements HandlesArguments
 
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';
 
-                $this->coverageLogger?->append( $path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage );
+                $this->coverageLogger->append( $path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage );
 
                 $uncoveredLines = implode(', ', $uncoveredLines);
                 $uncoveredLinesIgnored = implode(', ', $uncoveredLinesIgnored);
@@ -136,7 +137,7 @@ class Plugin implements HandlesArguments
 
         $coverage = array_sum($totals) / count($totals);
 
-        $this->coverageLogger?->output();
+        $this->coverageLogger->output();
 
         $exitCode = (int) ($coverage < $this->coverageMin);
 
