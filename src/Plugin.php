@@ -31,6 +31,11 @@ class Plugin implements HandlesArguments
     private float $coverageMin = 0.0;
 
     /**
+     * The path to output coverage to.
+     */
+    private ?string $coverageOutputPath = null;
+
+    /**
      * Creates a new Plugin instance.
      */
     public function __construct(
@@ -53,6 +58,11 @@ class Plugin implements HandlesArguments
                 // grab the value of the --min argument
                 $this->coverageMin = (float) explode('=', $argument)[1];
             }
+
+            if (str_starts_with($argument, '--type-coverage-output')) {
+                // grab the value of the --type-coverage-output argument
+                $this->coverageOutputPath = explode('=', $argument)[1];
+            }
         }
 
         $source = ConfigurationSourceDetector::detect();
@@ -68,12 +78,13 @@ class Plugin implements HandlesArguments
 
         $files = Finder::create()->in($source)->name('*.php')->files();
         $totals = [];
+        $logs = [];
 
         $this->output->writeln(['']);
 
         Analyser::analyse(
             array_keys(iterator_to_array($files)),
-            function (Result $result) use (&$totals): void {
+            function (Result $result) use (&$totals, &$logs): void {
                 $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
 
                 $truncateAt = max(1, terminal()->width() - 12);
@@ -117,10 +128,31 @@ class Plugin implements HandlesArguments
                     <span class="text-{$color}">$uncoveredLines{$uncoveredLinesIgnored} {$percentage}%</span>
                 </div>
                 HTML);
+
+                if($this->coverageOutputPath !== null) {
+                    $logs[] = [
+                        'file' => $path,
+                        'uncoveredLines' => $uncoveredLines,
+                        'uncoveredLinesIgnored' => $uncoveredLinesIgnored,
+                        'percentage' => $percentage,
+                    ];
+                }
             },
         );
 
         $coverage = array_sum($totals) / count($totals);
+
+        if($this->coverageOutputPath !== null) {
+            $json = json_encode([
+                'format' => 'pest',
+                'settings' => [
+                    'coverage_min' => $this->coverageMin,
+                ],
+                'data' => $logs,
+                'total' => round($coverage, 2)
+            ], JSON_PRETTY_PRINT);
+            file_put_contents($this->coverageOutputPath, $json);
+        }
 
         $exitCode = (int) ($coverage < $this->coverageMin);
 
