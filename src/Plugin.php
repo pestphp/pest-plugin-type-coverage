@@ -52,7 +52,15 @@ class Plugin implements HandlesArguments
      */
     public function handleArguments(array $arguments): array
     {
-        if (! $this->hasArgument('--type-coverage', $arguments) && ! $this->hasArgument('--type-coverage-json', $arguments)) {
+        $continue = false;
+
+        foreach ($arguments as $argument) {
+            if (str_starts_with($argument, '--type-coverage')) {
+                $continue = true;
+            }
+        }
+
+        if (! $continue) {
             return $arguments;
         }
 
@@ -63,7 +71,17 @@ class Plugin implements HandlesArguments
             }
 
             if (str_starts_with($argument, '--type-coverage-json')) {
-                // grab the value of the --type-coverage-json argument
+                $outputPath = explode('=', $argument)[1] ?? null;
+
+                if ($outputPath === null) {
+                    View::render('components.badge', [
+                        'type' => 'ERROR',
+                        'content' => 'No output path provided for [--type-coverage-json].',
+                    ]);
+
+                    $this->exit(1);
+                }
+
                 $this->coverageLogger = new JsonLogger(explode('=', $argument)[1], $this->coverageMin);
             }
         }
