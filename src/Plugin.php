@@ -70,6 +70,28 @@ class Plugin implements HandlesArguments
                 $this->coverageMin = (float) explode('=', $argument)[1];
             }
 
+            if (str_starts_with($argument, '--memory-limit')) {
+                $memoryLimit = explode('=', $argument)[1] ?? '';
+
+                if (preg_match('/^-?\d+[kMG]?$/', $memoryLimit) !== 1) {
+                    View::render('components.badge', [
+                        'type' => 'ERROR',
+                        'content' => 'Invalid memory limit: '.$memoryLimit,
+                    ]);
+
+                    $this->exit(1);
+                }
+
+                if (ini_set('memory_limit', $memoryLimit) === false) {
+                    View::render('components.badge', [
+                        'type' => 'ERROR',
+                        'content' => 'Failed to set memory limit: '.$memoryLimit,
+                    ]);
+
+                    $this->exit(1);
+                }
+            }
+
             if (str_starts_with($argument, '--type-coverage-json')) {
                 $outputPath = explode('=', $argument)[1] ?? null;
 
