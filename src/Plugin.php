@@ -34,6 +34,11 @@ class Plugin implements HandlesArguments
     private float $coverageMin = 0.0;
 
     /**
+     * Hide files with complete type coverage from output
+     */
+    private bool $hideComplete = false;
+
+    /**
      * The logger used to output type coverage to a file.
      */
     private Logger $coverageLogger;
@@ -106,6 +111,10 @@ class Plugin implements HandlesArguments
 
                 $this->coverageLogger = new JsonLogger(explode('=', $argument)[1], $this->coverageMin);
             }
+
+            if ($argument == '--hide-complete') {
+                $this->hideComplete = true;
+            }
         }
 
         $source = ConfigurationSourceDetector::detect();
@@ -164,14 +173,16 @@ class Plugin implements HandlesArguments
 
                 $totals[] = $percentage = $result->totalCoverage;
 
-                renderUsing($this->output);
-                render(<<<HTML
-                <div class="flex mx-2">
-                    <span class="truncate-{$truncateAt}">{$path}</span>
-                    <span class="flex-1 content-repeat-[.] text-gray mx-1"></span>
-                    <span class="text-{$color}">$uncoveredLines{$uncoveredLinesIgnored} {$percentage}%</span>
-                </div>
-                HTML);
+                if ($this->hideComplete === false || $percentage < 100) {
+                    renderUsing($this->output);
+                    render(<<<HTML
+                    <div class="flex mx-2">
+                        <span class="truncate-{$truncateAt}">{$path}</span>
+                        <span class="flex-1 content-repeat-[.] text-gray mx-1"></span>
+                        <span class="text-{$color}">$uncoveredLines{$uncoveredLinesIgnored} {$percentage}%</span>
+                    </div>
+                    HTML);
+                }
             },
         );
 

@@ -23,6 +23,25 @@ test('output', function () {
         );
 });
 
+test('it only outputs files under 100% coverage', function () {
+    $output = new BufferedOutput();
+    $plugin = new class($output) extends Plugin
+    {
+        public function exit(int $code): never
+        {
+            throw new Exception($code);
+        }
+    };
+
+    expect(fn () => $plugin->handleArguments(['--type-coverage', '--hide-complete']))->toThrow(Exception::class, 0)
+        ->and($output->fetch())->toContain(
+            '.. pr12 83',
+            '.. pr12, pa14, pa14, rt14 0',
+            '.. rt12 67',
+            '.. pa12 83',
+        )->not->ToContain('.. 100%');
+});
+
 test('it can output to json', function () {
     $output = new BufferedOutput();
     $plugin = new class($output) extends Plugin
