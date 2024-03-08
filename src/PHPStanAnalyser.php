@@ -72,6 +72,7 @@ final class PHPStanAnalyser
             true,
             true,
             false,
+            true,
         );
 
         $fileAnalyser = new FileAnalyser(
