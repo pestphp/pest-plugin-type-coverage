@@ -1,6 +1,5 @@
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
-    - vendor/ergebnis/phpstan-rules/rules.neon
     - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
 
 parameters:
@@ -13,7 +12,4 @@ parameters:
 
     ignoreErrors:
         - identifier: missingType.generics
-        - "#is not allowed to extend#"
         - "#is not covered by backward compatibility promise#"
-        - "#is concrete, but does not have a Test suffix.#"
-        - "#is neither abstract nor final.#"
