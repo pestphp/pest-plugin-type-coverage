@@ -15,7 +15,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "phpstan/phpstan": "^1.12.6",
+        "phpstan/phpstan": "^1.12.10|^2.0.0",
         "tomasvotruba/type-coverage": "^1.0.0",
         "pestphp/pest-plugin": "^3.0.0"
     },
@@ -25,8 +25,8 @@
         }
     },
     "require-dev": {
-        "pestphp/pest": "^3.2.5",
-        "pestphp/pest-dev-tools": "^3.0.0"
+        "pestphp/pest": "^3.5.1",
+        "pestphp/pest-dev-tools": "^3.3.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
