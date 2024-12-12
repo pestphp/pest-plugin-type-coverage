@@ -50,7 +50,7 @@ final class TestCaseForTypeCoverage extends RuleTestCase
     /**
      * An example test.
      */
-    public function testDummy(): void
+    public function test_dummy(): void
     {
         //
     }
