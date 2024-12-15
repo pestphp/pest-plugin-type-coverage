@@ -71,15 +71,12 @@ final class PHPStanAnalyser
             $scopeFactory,
             false,
             true,
+            true,
             [],
             [],
             [],
             true,
             true,
-            false,
-            true,
-            false,
-            false,
         );
 
         $fileAnalyser = new FileAnalyser(
