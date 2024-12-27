@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pest\TypeCoverage;
 
+use Composer\InstalledVersions;
 use PhpParser\Node;
 use PHPStan\Analyser\Analyser;
 use PHPStan\Analyser\FileAnalyser;
@@ -51,36 +52,67 @@ final class PHPStanAnalyser
 
         $scopeFactory = TestCaseForTypeCoverage::createScopeFactory($reflectionProvider, $typeSpecifier); // @phpstan-ignore-line
 
-        $nodeScopeResolver = new NodeScopeResolver(
-            $reflectionProvider,
-            $container->getByType(InitializerExprTypeResolver::class),
-            $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
-            $container->getByType(ClassReflectionExtensionRegistryProvider::class),
-            $container->getByType(ParameterOutTypeExtensionProvider::class),
-            $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
-            $container->getByType(FileTypeMapper::class),
-            $container->getByType(StubPhpDocProvider::class),
-            $container->getByType(PhpVersion::class),
-            $container->getByType(SignatureMapProvider::class),
-            $container->getByType(PhpDocInheritanceResolver::class),
-            $container->getByType(FileHelper::class),
-            $typeSpecifier, // @phpstan-ignore-line
-            $container->getByType(DynamicThrowTypeExtensionProvider::class),
-            $container->getByType(ReadWritePropertiesExtensionProvider::class),
-            $container->getByType(ParameterClosureTypeExtensionProvider::class),
-            $scopeFactory,
-            false,
-            true,
-            [],
-            [],
-            [],
-            true,
-            true,
-            false,
-            true,
-            false,
-            false,
-        );
+        $version = InstalledVersions::getPrettyVersion('phpstan/phpstan');
+        if (mb_strpos($version, '2.') === 0) {
+            $nodeScopeResolver = new NodeScopeResolver(
+                $reflectionProvider,
+                $container->getByType(InitializerExprTypeResolver::class),
+                $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
+                $container->getByType(ClassReflectionExtensionRegistryProvider::class),
+                $container->getByType(ParameterOutTypeExtensionProvider::class),
+                $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                $container->getByType(FileTypeMapper::class),
+                $container->getByType(StubPhpDocProvider::class),
+                $container->getByType(PhpVersion::class),
+                $container->getByType(SignatureMapProvider::class),
+                $container->getByType(PhpDocInheritanceResolver::class),
+                $container->getByType(FileHelper::class),
+                $typeSpecifier, // @phpstan-ignore-line
+                $container->getByType(DynamicThrowTypeExtensionProvider::class),
+                $container->getByType(ReadWritePropertiesExtensionProvider::class),
+                $container->getByType(ParameterClosureTypeExtensionProvider::class),
+                $scopeFactory,
+                false,
+                true,
+                true,
+                [],
+                [],
+                [],
+                true,
+                true,
+            );
+        } else {
+            $nodeScopeResolver = new NodeScopeResolver(
+                $reflectionProvider,
+                $container->getByType(InitializerExprTypeResolver::class),
+                $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
+                $container->getByType(ClassReflectionExtensionRegistryProvider::class),
+                $container->getByType(ParameterOutTypeExtensionProvider::class),
+                $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                $container->getByType(FileTypeMapper::class),
+                $container->getByType(StubPhpDocProvider::class),
+                $container->getByType(PhpVersion::class),
+                $container->getByType(SignatureMapProvider::class),
+                $container->getByType(PhpDocInheritanceResolver::class),
+                $container->getByType(FileHelper::class),
+                $typeSpecifier, // @phpstan-ignore-line
+                $container->getByType(DynamicThrowTypeExtensionProvider::class),
+                $container->getByType(ReadWritePropertiesExtensionProvider::class),
+                $container->getByType(ParameterClosureTypeExtensionProvider::class),
+                $scopeFactory,
+                false,
+                true,
+                [],
+                [],
+                [],
+                true,
+                true,
+                false,
+                true,
+                false,
+                false,
+            );
+        }
 
         $fileAnalyser = new FileAnalyser(
             $scopeFactory,
