@@ -52,7 +52,7 @@ final class PHPStanAnalyser
 
         $scopeFactory = TestCaseForTypeCoverage::createScopeFactory($reflectionProvider, $typeSpecifier); // @phpstan-ignore-line
 
-        $version = InstalledVersions::getPrettyVersion('phpstan/phpstan');
+        $version = InstalledVersions::getPrettyVersion('phpstan/phpstan') ?? InstalledVersions::getPrettyVersion('phpstan/phpstan-src');
         if ($version !== null && mb_strpos($version, '2.') === 0) {
             $nodeScopeResolver = new NodeScopeResolver( // @phpstan-ignore-line
                 $reflectionProvider,
