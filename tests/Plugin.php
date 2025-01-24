@@ -41,7 +41,7 @@ test('output with --compact', function () {
             '.. co14 87',
             '.. rt12 75',
             '.. pa12 87',
-        );
+        )->not->toContain('.. 100%');
 });
 
 test('it can output to json', function () {
