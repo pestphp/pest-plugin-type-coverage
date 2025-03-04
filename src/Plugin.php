@@ -66,6 +66,17 @@ class Plugin implements HandlesArguments
 
         foreach ($arguments as $argument) {
             if (str_starts_with($argument, '--min')) {
+                $coverageMin = explode('=', $argument)[1];
+
+                if (! is_numeric($coverageMin) || (float) $coverageMin < 0 || (float) $coverageMin > 100) {
+                    View::render('components.badge', [
+                        'type' => 'ERROR',
+                        'content' => 'Invalid coverage min: '.$coverageMin,
+                    ]);
+
+                    $this->exit(1);
+                }
+
                 // grab the value of the --min argument
                 $this->coverageMin = (float) explode('=', $argument)[1];
             }
