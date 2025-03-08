@@ -8,6 +8,7 @@ use Composer\InstalledVersions;
 use PhpParser\Node;
 use PHPStan\Analyser\Analyser;
 use PHPStan\Analyser\FileAnalyser;
+use PHPStan\Analyser\IgnoreErrorExtensionProvider;
 use PHPStan\Analyser\LocalIgnoresProcessor;
 use PHPStan\Analyser\NodeScopeResolver;
 use PHPStan\Analyser\RuleErrorTransformer;
@@ -144,14 +145,26 @@ final class PHPStanAnalyser
             );
         }
 
-        $fileAnalyser = new FileAnalyser(
-            $scopeFactory,
-            $nodeScopeResolver,
-            $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
-            $container->getByType(DependencyResolver::class),
-            new RuleErrorTransformer,
-            $container->getByType(LocalIgnoresProcessor::class),
-        );
+        if ($version !== null && version_compare($version, '2.1.7', '>=')) {
+            $fileAnalyser = new FileAnalyser(
+                $scopeFactory,
+                $nodeScopeResolver,
+                $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                $container->getByType(DependencyResolver::class),
+                new IgnoreErrorExtensionProvider($container),
+                new RuleErrorTransformer,
+                $container->getByType(LocalIgnoresProcessor::class),
+            );
+        } else {
+            $fileAnalyser = new FileAnalyser(
+                $scopeFactory,
+                $nodeScopeResolver,
+                $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                $container->getByType(DependencyResolver::class),
+                new RuleErrorTransformer,
+                $container->getByType(LocalIgnoresProcessor::class),
+            );
+        }
 
         return new Analyser($fileAnalyser, $ruleRegistry, $collectorRegistry, $nodeScopeResolver, 9_999_999_999_999);
     }
