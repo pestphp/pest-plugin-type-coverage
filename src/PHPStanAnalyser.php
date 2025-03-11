@@ -8,6 +8,7 @@ use Composer\InstalledVersions;
 use PhpParser\Node;
 use PHPStan\Analyser\Analyser;
 use PHPStan\Analyser\FileAnalyser;
+use PHPStan\Analyser\IgnoreErrorExtensionProvider;
 use PHPStan\Analyser\LocalIgnoresProcessor;
 use PHPStan\Analyser\NodeScopeResolver;
 use PHPStan\Analyser\RuleErrorTransformer;
@@ -149,6 +150,7 @@ final class PHPStanAnalyser
             $nodeScopeResolver,
             $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
             $container->getByType(DependencyResolver::class),
+            $container->getByType(IgnoreErrorExtensionProvider::class),
             new RuleErrorTransformer,
             $container->getByType(LocalIgnoresProcessor::class),
         );
