@@ -184,7 +184,7 @@ class Plugin implements HandlesArguments
         if ($exitCode === 1) {
             View::render('components.badge', [
                 'type' => 'ERROR',
-                'content' => 'Type coverage below expected: '.number_format($coverage, 1).'%. Minimum: '.number_format($this->coverageMin, 1).'%',
+                'content' => 'Type coverage below expected: '.number_format($this->coverageMin, 1).'%, currently '.number_format(floor($coverage * 10) / 10, 1).'%',
             ]);
         } else {
             $totalCoverageAsString = $coverage === 0
