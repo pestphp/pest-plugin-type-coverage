@@ -145,15 +145,26 @@ final class PHPStanAnalyser
             );
         }
 
-        $fileAnalyser = new FileAnalyser(
-            scopeFactory: $scopeFactory,
-            nodeScopeResolver: $nodeScopeResolver,
-            parser: $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
-            dependencyResolver: $container->getByType(DependencyResolver::class),
-            ignoreErrorExtensionProvider: $container->getByType(IgnoreErrorExtensionProvider::class),
-            ruleErrorTransformer: new RuleErrorTransformer,
-            localIgnoresProcessor: $container->getByType(LocalIgnoresProcessor::class),
-        );
+        try {
+            $fileAnalyser = new FileAnalyser(
+                scopeFactory: $scopeFactory,
+                nodeScopeResolver: $nodeScopeResolver,
+                parser: $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                dependencyResolver: $container->getByType(DependencyResolver::class),
+                ignoreErrorExtensionProvider: $container->getByType(IgnoreErrorExtensionProvider::class),
+                ruleErrorTransformer: new RuleErrorTransformer,
+                localIgnoresProcessor: $container->getByType(LocalIgnoresProcessor::class),
+            );
+        } catch (\Throwable $e) {
+            $fileAnalyser = new FileAnalyser(
+                scopeFactory: $scopeFactory,
+                nodeScopeResolver: $nodeScopeResolver,
+                parser: $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                dependencyResolver: $container->getByType(DependencyResolver::class),
+                ruleErrorTransformer: new RuleErrorTransformer,
+                localIgnoresProcessor: $container->getByType(LocalIgnoresProcessor::class),
+            );
+        }
 
         return new Analyser($fileAnalyser, $ruleRegistry, $collectorRegistry, $nodeScopeResolver, 9_999_999_999_999);
     }
