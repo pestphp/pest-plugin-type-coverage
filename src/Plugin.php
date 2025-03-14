@@ -39,6 +39,11 @@ class Plugin implements HandlesArguments
     private Logger $coverageLogger;
 
     /**
+     * Whether to use compact output.
+     */
+    private bool $compact = false;
+
+    /**
      * Creates a new Plugin instance.
      */
     public function __construct(
@@ -106,6 +111,10 @@ class Plugin implements HandlesArguments
 
                 $this->coverageLogger = new JsonLogger(explode('=', $argument)[1], $this->coverageMin);
             }
+
+            if (str_starts_with($argument, '--compact')) {
+                $this->compact = true;
+            }
         }
 
         $source = ConfigurationSourceDetector::detect();
@@ -145,6 +154,10 @@ class Plugin implements HandlesArguments
                 }
                 foreach ($errorsIgnored as $error) {
                     $uncoveredLinesIgnored[] = $error->getShortType().$error->line;
+                }
+
+                if ($this->compact && $uncoveredLines === []) {
+                    return;
                 }
 
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';

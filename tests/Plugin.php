@@ -24,6 +24,26 @@ test('output', function () {
         );
 });
 
+test('output with --compact', function () {
+    $output = new BufferedOutput;
+    $plugin = new class($output) extends Plugin
+    {
+        public function exit(int $code): never
+        {
+            throw new Exception($code);
+        }
+    };
+
+    expect(fn () => $plugin->handleArguments(['--type-coverage', '--compact']))->toThrow(Exception::class, 0)
+        ->and($output->fetch())->toContain(
+            '.. pr12 87',
+            '.. co14, pr16, pa18, pa18, rt18 12',
+            '.. co14 87',
+            '.. rt12 75',
+            '.. pa12 87',
+        )->not->toContain('.. 100%');
+});
+
 test('it can output to json', function () {
     $output = new BufferedOutput;
     $plugin = new class($output) extends Plugin
