@@ -148,10 +148,6 @@ class Plugin implements HandlesOriginalArguments
                     $uncoveredLinesIgnored[] = $error->getShortType().$error->line;
                 }
 
-                if ($this->compact && $uncoveredLines === []) {
-                    return;
-                }
-
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';
 
                 $this->coverageLogger->append($path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage);
@@ -168,6 +164,10 @@ class Plugin implements HandlesOriginalArguments
                 }
 
                 $totals[] = $percentage = $result->totalCoverage;
+
+                if ($this->compact === true && $percentage === 100) {
+                    return;
+                }
 
                 renderUsing($this->output);
                 render(<<<HTML
