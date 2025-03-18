@@ -13,7 +13,7 @@ test('output', function () {
         }
     };
 
-    expect(fn () => $plugin->handleArguments(['--type-coverage']))->toThrow(Exception::class, 0)
+    expect(fn () => $plugin->handleOriginalArguments(['--type-coverage']))->toThrow(Exception::class, 0)
         ->and($output->fetch())->toContain(
             '.. 100%',
             '.. pr12 87',
@@ -34,7 +34,7 @@ test('output with --compact', function () {
         }
     };
 
-    expect(fn () => $plugin->handleArguments(['--type-coverage', '--compact']))->toThrow(Exception::class, 0)
+    expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--compact']))->toThrow(Exception::class, 0)
         ->and($output->fetch())->toContain(
             '.. pr12 87',
             '.. co14, pr16, pa18, pa18, rt18 12',
@@ -54,7 +54,7 @@ test('it can output to json', function () {
         }
     };
 
-    expect(fn () => $plugin->handleArguments(['--type-coverage', '--type-coverage-json=test.json']))->toThrow(Exception::class, 0);
+    expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--type-coverage-json=test.json']))->toThrow(Exception::class, 0);
 
     expect(__DIR__.'/../test.json')->toBeReadableFile();
 

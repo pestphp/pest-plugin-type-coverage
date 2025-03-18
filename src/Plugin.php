@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pest\TypeCoverage;
 
-use Pest\Contracts\Plugins\HandlesArguments;
+use Pest\Contracts\Plugins\HandlesOriginalArguments;
 use Pest\Plugins\Concerns\HandleArguments;
 use Pest\Support\View;
 use Pest\TestSuite;
@@ -24,7 +24,7 @@ use function Termwind\terminal;
  *
  * @final
  */
-class Plugin implements HandlesArguments
+class Plugin implements HandlesOriginalArguments
 {
     use HandleArguments;
 
@@ -55,18 +55,10 @@ class Plugin implements HandlesArguments
     /**
      * {@inheritdoc}
      */
-    public function handleArguments(array $arguments): array
+    public function handleOriginalArguments(array $arguments): void
     {
-        $continue = false;
-
-        foreach ($arguments as $argument) {
-            if (str_starts_with($argument, '--type-coverage')) {
-                $continue = true;
-            }
-        }
-
-        if (! $continue) {
-            return $arguments;
+        if (! $this->hasArgument('--type-coverage', $arguments)) {
+            return;
         }
 
         foreach ($arguments as $argument) {
