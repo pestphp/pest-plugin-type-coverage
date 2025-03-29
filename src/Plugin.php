@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pest\TypeCoverage;
 
-use Pest\Contracts\Plugins\HandlesArguments;
+use Pest\Contracts\Plugins\HandlesOriginalArguments;
 use Pest\Plugins\Concerns\HandleArguments;
 use Pest\Support\View;
 use Pest\TestSuite;
@@ -24,7 +24,7 @@ use function Termwind\terminal;
  *
  * @final
  */
-class Plugin implements HandlesArguments
+class Plugin implements HandlesOriginalArguments
 {
     use HandleArguments;
 
@@ -55,18 +55,10 @@ class Plugin implements HandlesArguments
     /**
      * {@inheritdoc}
      */
-    public function handleArguments(array $arguments): array
+    public function handleOriginalArguments(array $arguments): void
     {
-        $continue = false;
-
-        foreach ($arguments as $argument) {
-            if (str_starts_with($argument, '--type-coverage')) {
-                $continue = true;
-            }
-        }
-
-        if (! $continue) {
-            return $arguments;
+        if (! $this->hasArgument('--type-coverage', $arguments)) {
+            return;
         }
 
         foreach ($arguments as $argument) {
@@ -156,10 +148,6 @@ class Plugin implements HandlesArguments
                     $uncoveredLinesIgnored[] = $error->getShortType().$error->line;
                 }
 
-                if ($this->compact && $uncoveredLines === []) {
-                    return;
-                }
-
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';
 
                 $this->coverageLogger->append($path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage);
@@ -176,6 +164,10 @@ class Plugin implements HandlesArguments
                 }
 
                 $totals[] = $percentage = $result->totalCoverage;
+
+                if ($this->compact === true && $percentage === 100) {
+                    return;
+                }
 
                 renderUsing($this->output);
                 render(<<<HTML
