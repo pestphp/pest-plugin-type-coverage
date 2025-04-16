@@ -25,6 +25,7 @@ use PHPStan\Php\PhpVersion;
 use PHPStan\PhpDoc\PhpDocInheritanceResolver;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\AttributeReflectionFactory;
+use PHPStan\Reflection\Deprecation\DeprecationProvider;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
@@ -55,7 +56,37 @@ final class PHPStanAnalyser
         $scopeFactory = TestCaseForTypeCoverage::createScopeFactory($reflectionProvider, $typeSpecifier); // @phpstan-ignore-line
 
         $version = InstalledVersions::getPrettyVersion('phpstan/phpstan') ?? InstalledVersions::getPrettyVersion('phpstan/phpstan-src');
-        if ($version !== null && version_compare($version, '2.1.3', '>=')) {
+        if ($version !== null && version_compare($version, '2.1.12', '>=')) {
+            $nodeScopeResolver = new NodeScopeResolver( // @phpstan-ignore-line
+                $reflectionProvider,
+                $container->getByType(InitializerExprTypeResolver::class),
+                $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
+                $container->getByType(ClassReflectionExtensionRegistryProvider::class),
+                $container->getByType(ParameterOutTypeExtensionProvider::class),
+                $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                $container->getByType(FileTypeMapper::class),
+                $container->getByType(StubPhpDocProvider::class),
+                $container->getByType(PhpVersion::class),
+                $container->getByType(SignatureMapProvider::class),
+                $container->getByType(DeprecationProvider::class),
+                $container->getByType(AttributeReflectionFactory::class),
+                $container->getByType(PhpDocInheritanceResolver::class),
+                $container->getByType(FileHelper::class),
+                $typeSpecifier, // @phpstan-ignore-line
+                $container->getByType(DynamicThrowTypeExtensionProvider::class),
+                $container->getByType(ReadWritePropertiesExtensionProvider::class),
+                $container->getByType(ParameterClosureTypeExtensionProvider::class),
+                $scopeFactory,
+                false,
+                true,
+                true, // @phpstan-ignore-line
+                [],
+                [],
+                [], // @phpstan-ignore-line
+                true,
+                true,
+            );
+        } elseif ($version !== null && version_compare($version, '2.1.3', '>=')) {
             $nodeScopeResolver = new NodeScopeResolver( // @phpstan-ignore-line
                 $reflectionProvider,
                 $container->getByType(InitializerExprTypeResolver::class),
