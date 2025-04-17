@@ -58,33 +58,34 @@ final class PHPStanAnalyser
         $version = InstalledVersions::getPrettyVersion('phpstan/phpstan') ?? InstalledVersions::getPrettyVersion('phpstan/phpstan-src');
         if ($version !== null && version_compare($version, '2.1.12', '>=')) {
             $nodeScopeResolver = new NodeScopeResolver( // @phpstan-ignore-line
-                $reflectionProvider,
-                $container->getByType(InitializerExprTypeResolver::class),
-                $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
-                $container->getByType(ClassReflectionExtensionRegistryProvider::class),
-                $container->getByType(ParameterOutTypeExtensionProvider::class),
-                $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
-                $container->getByType(FileTypeMapper::class),
-                $container->getByType(StubPhpDocProvider::class),
-                $container->getByType(PhpVersion::class),
-                $container->getByType(SignatureMapProvider::class),
-                $container->getByType(DeprecationProvider::class),
-                $container->getByType(AttributeReflectionFactory::class),
-                $container->getByType(PhpDocInheritanceResolver::class),
-                $container->getByType(FileHelper::class),
-                $typeSpecifier, // @phpstan-ignore-line
-                $container->getByType(DynamicThrowTypeExtensionProvider::class),
-                $container->getByType(ReadWritePropertiesExtensionProvider::class),
-                $container->getByType(ParameterClosureTypeExtensionProvider::class),
-                $scopeFactory,
-                false,
-                true,
-                true, // @phpstan-ignore-line
-                [],
-                [],
-                [], // @phpstan-ignore-line
-                true,
-                true,
+                reflectionProvider: $reflectionProvider,
+                initializerExprTypeResolver: $container->getByType(InitializerExprTypeResolver::class),
+                reflector: $container->getService('betterReflectionReflector'), // @phpstan-ignore-line
+                classReflectionExtensionRegistryProvider: $container->getByType(ClassReflectionExtensionRegistryProvider::class),
+                parameterOutTypeExtensionProvider: $container->getByType(ParameterOutTypeExtensionProvider::class),
+                parser: $container->getService('defaultAnalysisParser'), // @phpstan-ignore-line
+                fileTypeMapper: $container->getByType(FileTypeMapper::class),
+                stubPhpDocProvider: $container->getByType(StubPhpDocProvider::class),
+                phpVersion: $container->getByType(PhpVersion::class),
+                signatureMapProvider: $container->getByType(SignatureMapProvider::class),
+                deprecationProvider: $container->getByType(DeprecationProvider::class),
+                attributeReflectionFactory: $container->getByType(AttributeReflectionFactory::class),
+                phpDocInheritanceResolver: $container->getByType(PhpDocInheritanceResolver::class),
+                fileHelper: $container->getByType(FileHelper::class),
+                typeSpecifier: $typeSpecifier, // @phpstan-ignore-line
+                dynamicThrowTypeExtensionProvider: $container->getByType(DynamicThrowTypeExtensionProvider::class),
+                readWritePropertiesExtensionProvider: $container->getByType(ReadWritePropertiesExtensionProvider::class),
+                parameterClosureTypeExtensionProvider: $container->getByType(ParameterClosureTypeExtensionProvider::class),
+                scopeFactory: $scopeFactory,
+                polluteScopeWithLoopInitialAssignments: false,
+                polluteScopeWithAlwaysIterableForeach: true,
+                polluteScopeWithBlock: true, // @phpstan-ignore-line
+                earlyTerminatingMethodCalls: [],
+                earlyTerminatingFunctionCalls: [],
+                universalObjectCratesClasses: [], // @phpstan-ignore-line
+                implicitThrows: true,
+                treatPhpDocTypesAsCertain: true,
+                narrowMethodScopeFromConstructor: true,
             );
         } elseif ($version !== null && version_compare($version, '2.1.3', '>=')) {
             $nodeScopeResolver = new NodeScopeResolver( // @phpstan-ignore-line
