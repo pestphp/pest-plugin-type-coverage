@@ -20,7 +20,7 @@ use PHPStan\Rules\Rule;
 final class PHPStanAnalyser
 {
     /**
-     * Creates an analyser with the rules and collectors needed for type coverage.
+     * Creates an analyzer with the rules and collectors needed for type coverage.
      *
      * @param  array<int, Rule>  $rules
      * @param  array<int, Collector<Node, mixed>>  $collectors
