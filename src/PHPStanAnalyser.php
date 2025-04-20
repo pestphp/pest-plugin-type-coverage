@@ -25,6 +25,7 @@ use PHPStan\Php\PhpVersion;
 use PHPStan\PhpDoc\PhpDocInheritanceResolver;
 use PHPStan\PhpDoc\StubPhpDocProvider;
 use PHPStan\Reflection\AttributeReflectionFactory;
+use PHPStan\Reflection\Deprecation\DeprecationProvider;
 use PHPStan\Reflection\InitializerExprTypeResolver;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Reflection\SignatureMap\SignatureMapProvider;
@@ -67,6 +68,7 @@ final class PHPStanAnalyser
                 $container->getByType(StubPhpDocProvider::class),
                 $container->getByType(PhpVersion::class),
                 $container->getByType(SignatureMapProvider::class),
+                $container->getByType(DeprecationProvider::class),
                 $container->getByType(AttributeReflectionFactory::class),
                 $container->getByType(PhpDocInheritanceResolver::class),
                 $container->getByType(FileHelper::class),
@@ -83,6 +85,7 @@ final class PHPStanAnalyser
                 [], // @phpstan-ignore-line
                 true,
                 true,
+                false,
             );
         } elseif ($version !== null && version_compare($version, '2.0.0', '>=')) {
             $nodeScopeResolver = new NodeScopeResolver( // @phpstan-ignore-line
