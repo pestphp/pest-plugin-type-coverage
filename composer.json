@@ -40,7 +40,7 @@
     "scripts": {
         "lint": "pint",
         "test:lint": "pint --test",
-        "test:unit": "pest --colors=always",
+        "test:unit": "pest",
         "test": [
             "@test:lint",
             "@test:unit"
