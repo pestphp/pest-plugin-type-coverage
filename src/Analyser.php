@@ -19,7 +19,7 @@ final class Analyser
      */
     public static function analyse(array $files, Closure $callback): void
     {
-        $testCase = new TestCaseForTypeCoverage;
+        $testCase = new TestCaseForTypeCoverage('dummy');
 
         foreach ($files as $file) {
             $errors = $testCase->gatherAnalyserErrors([$file]);

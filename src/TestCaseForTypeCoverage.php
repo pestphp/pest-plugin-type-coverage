@@ -38,16 +38,6 @@ final class TestCaseForTypeCoverage extends RuleTestCase
     private array $ignoredErrors = [];
 
     /**
-     * Creates
-     */
-    public function __construct()
-    {
-        parent::__construct('testDummy');
-
-        //
-    }
-
-    /**
      * An example test.
      */
     public function test_dummy(): void
