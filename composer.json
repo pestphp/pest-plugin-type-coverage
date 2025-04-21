@@ -16,7 +16,7 @@
     "require": {
         "php": "^8.3",
         "phpstan/phpstan": "^1.12.24|^2.1.12",
-        "tomasvotruba/type-coverage": "^2.0.2",
+        "tomasvotruba/type-coverage": "^1.0.0|^2.0.2",
         "pestphp/pest-plugin": "^4.0.0"
     },
     "autoload": {
