@@ -11,3 +11,4 @@ coverage.xml
 *.swo
 .php
 .phpunit.cache
+/temp

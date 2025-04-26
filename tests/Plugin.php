@@ -1,11 +1,33 @@
 <?php
 
 use Pest\TypeCoverage\Plugin;
+use Pest\TypeCoverage\Support\Cache;
 use Symfony\Component\Console\Output\BufferedOutput;
+
+test('output with `--no-cache`', function () {
+    $output = new BufferedOutput;
+    $plugin = new class($output, new Cache) extends Plugin
+    {
+        public function exit(int $code): never
+        {
+            throw new Exception($code);
+        }
+    };
+
+    expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--no-cache']))->toThrow(Exception::class, 0)
+        ->and($output->fetch())->toContain(
+            '.. 100%',
+            '.. pr12 87',
+            '.. co14, pr16, pa18, pa18, rt18 12',
+            '.. co14 87',
+            '.. rt12 75',
+            '.. pa12 87',
+        );
+});
 
 test('output', function () {
     $output = new BufferedOutput;
-    $plugin = new class($output) extends Plugin
+    $plugin = new class($output, new Cache) extends Plugin
     {
         public function exit(int $code): never
         {
@@ -26,7 +48,7 @@ test('output', function () {
 
 test('output with --compact', function () {
     $output = new BufferedOutput;
-    $plugin = new class($output) extends Plugin
+    $plugin = new class($output, new Cache) extends Plugin
     {
         public function exit(int $code): never
         {
