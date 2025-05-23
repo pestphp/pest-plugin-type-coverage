@@ -110,6 +110,10 @@ final class Cache
      */
     private function withinLock(callable $callback): mixed
     {
+        if (! is_file($this->file())) {
+            return $callback();
+        }
+
         $lock = fopen($this->file(), 'c+');
 
         if ($lock === false) {
