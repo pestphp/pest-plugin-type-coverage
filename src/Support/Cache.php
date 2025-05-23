@@ -112,6 +112,10 @@ final class Cache
     {
         $lock = fopen($this->file(), 'c+');
 
+        if ($lock === false) {
+            return $callback();
+        }
+
         // wait for the lock
         while (! flock($lock, LOCK_EX | LOCK_NB)) {
             usleep(1);
