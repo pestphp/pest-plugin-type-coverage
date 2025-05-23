@@ -71,9 +71,19 @@ final class Cache
      */
     private function all(): array
     {
-        return is_file($this->file())
-            ? include $this->file()
-            : [];
+        return $this->withinLock(function () {
+            if (! is_file($this->file())) {
+                return [];
+            }
+
+            $cache = include $this->file();
+
+            if (! is_array($cache)) {
+                return [];
+            }
+
+            return $cache;
+        });
     }
 
     /**
@@ -90,6 +100,28 @@ final class Cache
             mkdir(dirname($this->file()), 0755, true);
         }
 
-        file_put_contents($this->file(), '<?php return '.var_export($cache, true).';');
+        $this->withinLock(
+            fn () => file_put_contents($this->file(), '<?php return '.var_export($cache, true).';')
+        );
+    }
+
+    /**
+     * Executes the callback within a lock.
+     */
+    private function withinLock(callable $callback): mixed
+    {
+        $lock = fopen($this->file(), 'c+');
+
+        // wait for the lock
+        while (! flock($lock, LOCK_EX | LOCK_NB)) {
+            usleep(1);
+        }
+
+        try {
+            return $callback();
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace Pest\TypeCoverage;
 
 use Closure;
 use Pest\TypeCoverage\Support\Cache;
+use Pokio\Environment;
 
 /**
  * @internal
@@ -21,13 +22,15 @@ final class Analyser
     public static function analyse(array $files, Closure $postProcessedFile, Closure $onProcessedFile, Cache $cache): void
     {
         $testCase = new TestCaseForTypeCoverage('dummy');
-        $chunkOfFiles = array_chunk($files, 100);
-        foreach ($chunkOfFiles as $files) {
-            $promisses = [];
+        $chunkOfFiles = array_chunk($files, Environment::maxProcesses());
+        $promisses = [];
 
-            foreach ($files as $file) {
-                $promisses[] = async(function () use ($cache, $file, $testCase) {
-                    return $cache->get($file, function () use ($file, $testCase) {
+        foreach ($chunkOfFiles as $files) {
+            $promisses[] = async(function () use ($cache, $files, $testCase, $onProcessedFile) {
+                $results = [];
+
+                foreach ($files as $file) {
+                    [$file, $errors, $ignored] = $cache->get($file, function () use ($file, $testCase) {
                         $testCase->resetIgnoredErrors();
 
                         $errors = $testCase->gatherAnalyserErrors([$file]);
@@ -35,18 +38,20 @@ final class Analyser
 
                         return [$file, $errors, $ignored];
                     });
-                })->then(function (array $result) use ($onProcessedFile) {
-                    [$file, $errors, $ignored] = $result;
 
                     $result = Result::fromPHPStanErrors($file, $errors, $ignored);
 
                     $onProcessedFile($result);
 
-                    return $result;
-                });
-            }
+                    $results[] = $result;
+                }
 
-            foreach (await($promisses) as $result) {
+                return $results;
+            });
+        }
+
+        foreach (await($promisses) as $results) {
+            foreach ($results as $result) {
                 $postProcessedFile($result);
             }
         }
