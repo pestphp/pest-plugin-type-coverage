@@ -4,6 +4,8 @@ use Pest\TypeCoverage\Plugin;
 use Pest\TypeCoverage\Support\Cache;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+beforeEach(fn () => pokio()->useSync());
+
 test('output with `--no-cache`', function () {
     $output = new BufferedOutput;
     $plugin = new class($output, new Cache) extends Plugin

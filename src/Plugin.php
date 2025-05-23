@@ -131,12 +131,35 @@ class Plugin implements HandlesOriginalArguments
 
         $this->output->writeln(['']);
 
+        $terminalWidth = terminal()->width();
+
         Analyser::analyse(
             array_keys(iterator_to_array($files)),
             function (Result $result) use (&$totals): void {
                 $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
+                $uncoveredLines = [];
+                $uncoveredLinesIgnored = [];
 
-                $truncateAt = max(1, terminal()->width() - 12);
+                $errors = $result->errors;
+                $errorsIgnored = $result->errorsIgnored;
+
+                usort($errors, static fn (Error $a, Error $b): int => $a->line <=> $b->line);
+                usort($errorsIgnored, static fn (Error $a, Error $b): int => $a->line <=> $b->line);
+
+                foreach ($errors as $error) {
+                    $uncoveredLines[] = $error->getShortType().$error->line;
+                }
+                foreach ($errorsIgnored as $error) {
+                    $uncoveredLinesIgnored[] = $error->getShortType().$error->line;
+                }
+
+                $this->coverageLogger->append($path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage);
+                $totals[] = $result->totalCoverage;
+            },
+            function (Result $result) use ($terminalWidth): void {
+                $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
+
+                $truncateAt = max(1, $terminalWidth - 12);
 
                 $uncoveredLines = [];
                 $uncoveredLinesIgnored = [];
@@ -156,12 +179,9 @@ class Plugin implements HandlesOriginalArguments
 
                 $color = $uncoveredLines === [] ? 'green' : 'yellow';
 
-                $this->coverageLogger->append($path, $uncoveredLines, $uncoveredLinesIgnored, $result->totalCoverage);
-
                 $uncoveredLines = implode(', ', $uncoveredLines);
                 $uncoveredLinesIgnored = implode(', ', $uncoveredLinesIgnored);
-                // if there are uncovered lines, add a space before the ignored lines
-                // but only if there are ignored lines
+
                 if ($uncoveredLinesIgnored !== '') {
                     $uncoveredLinesIgnored = '<span class="text-gray">'.$uncoveredLinesIgnored.'</span>';
                     if ($uncoveredLines !== '') {
@@ -169,7 +189,7 @@ class Plugin implements HandlesOriginalArguments
                     }
                 }
 
-                $totals[] = $percentage = $result->totalCoverage;
+                $percentage = $result->totalCoverage;
 
                 if ($this->compact === true && $percentage === 100) {
                     return;
