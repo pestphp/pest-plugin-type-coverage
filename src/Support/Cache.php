@@ -30,7 +30,7 @@ final class Cache
      */
     public function get(string $file, callable $callback): array
     {
-        $fileHash = @md5_file($file);
+        $fileHash = md5_file($file);
         if ($fileHash === false) {
             return $callback();
         }
@@ -81,7 +81,7 @@ final class Cache
                 return [];
             }
 
-            $cache = @include $this->file();
+            $cache = include $this->file();
 
             return is_array($cache) ? $cache : [];
         });
@@ -94,10 +94,10 @@ final class Cache
     {
         $dirPath = dirname($this->file());
         if (! is_dir($dirPath)) {
-            if (! @mkdir($dirPath, 0777, true)) {
+            if (! mkdir($dirPath, 0777, true)) {
                 return;
             }
-            @chmod($dirPath, 0777);
+            chmod($dirPath, 0777);
         }
 
         $this->withinLock(function () use ($key, $values) {
@@ -105,7 +105,7 @@ final class Cache
             $cache = [];
 
             if (is_file($filePath)) {
-                $existingCache = @include $filePath;
+                $existingCache = include $filePath;
                 if (is_array($existingCache)) {
                     $cache = $existingCache;
                 }
@@ -115,8 +115,8 @@ final class Cache
 
             $content = '<?php return '.var_export($cache, true).';';
 
-            if (@file_put_contents($filePath, $content) !== false) {
-                @chmod($filePath, 0666);
+            if (file_put_contents($filePath, $content) !== false) {
+                chmod($filePath, 0666);
             }
 
             return null;
@@ -133,28 +133,28 @@ final class Cache
         $dirPath = dirname($filePath);
 
         if (! is_dir($dirPath)) {
-            @mkdir($dirPath, 0777, true);
-            @chmod($dirPath, 0777);
+            mkdir($dirPath, 0777, true);
+            chmod($dirPath, 0777);
         }
 
         if (! is_file($lockPath)) {
-            @touch($lockPath);
-            @chmod($lockPath, 0666);
+            touch($lockPath);
+            chmod($lockPath, 0666);
         }
 
-        $lock = @fopen($lockPath, 'c+');
+        $lock = fopen($lockPath, 'c+');
         if ($lock === false) {
             return $callback();
         }
 
         $attempts = 0;
-        while (! @flock($lock, LOCK_EX | LOCK_NB) && $attempts < 100) {
+        while (! flock($lock, LOCK_EX | LOCK_NB) && $attempts < 100) {
             usleep(1000);
             $attempts++;
         }
 
         if ($attempts >= 100) {
-            @fclose($lock);
+            fclose($lock);
 
             return $callback();
         }
@@ -162,8 +162,8 @@ final class Cache
         try {
             return $callback();
         } finally {
-            @flock($lock, LOCK_UN);
-            @fclose($lock);
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
     }
 }
