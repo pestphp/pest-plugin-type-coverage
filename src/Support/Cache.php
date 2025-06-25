@@ -76,7 +76,7 @@ final class Cache
                 return [];
             }
 
-            $cache = include $this->file();
+            $cache = @include $this->file();
 
             if (! is_array($cache)) {
                 return [];
@@ -95,14 +95,28 @@ final class Cache
 
         $cache[$key] = $values;
 
-        // ensure folder exists
-        if (! is_dir(dirname($this->file()))) {
-            mkdir(dirname($this->file()), 0755, true);
+        $dirPath = dirname($this->file());
+        if (! is_dir($dirPath)) {
+            if (! @mkdir($dirPath, 0777, true)) {
+                return;
+            }
+            @chmod($dirPath, 0777);
         }
 
-        $this->withinLock(
-            fn () => file_put_contents($this->file(), '<?php return '.var_export($cache, true).';')
-        );
+        $this->withinLock(function () use ($cache) {
+            $content = '<?php return '.var_export($cache, true).';';
+            $filePath = $this->file();
+            $tempFile = $filePath.'.tmp';
+
+            if (@file_put_contents($tempFile, $content, LOCK_EX) !== false) {
+                @chmod($tempFile, 0666);
+                if (@rename($tempFile, $filePath)) {
+                    @chmod($filePath, 0666);
+                } else {
+                    @unlink($tempFile);
+                }
+            }
+        });
     }
 
     /**
@@ -114,22 +128,29 @@ final class Cache
             return $callback();
         }
 
-        $lock = fopen($this->file(), 'c+');
+        $lock = @fopen($this->file(), 'c+');
 
         if ($lock === false) {
             return $callback();
         }
 
-        // wait for the lock
-        while (! flock($lock, LOCK_EX | LOCK_NB)) {
-            usleep(1);
+        $attempts = 0;
+        while (! @flock($lock, LOCK_EX | LOCK_NB) && $attempts < 100) {
+            usleep(1000);
+            $attempts++;
+        }
+
+        if ($attempts >= 100) {
+            @fclose($lock);
+
+            return $callback();
         }
 
         try {
             return $callback();
         } finally {
-            flock($lock, LOCK_UN);
-            fclose($lock);
+            @flock($lock, LOCK_UN);
+            @fclose($lock);
         }
     }
 }
