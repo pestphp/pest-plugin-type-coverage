@@ -12,7 +12,7 @@ final class Cache
     /**
      * The cache version.
      */
-    private const string CACHE_VERSION = 'v1';
+    private const string CACHE_VERSION = 'v2';
 
     /**
      * The cache instance.
@@ -30,15 +30,20 @@ final class Cache
      */
     public function get(string $file, callable $callback): array
     {
+        $fileHash = md5_file($file);
+        if ($fileHash === false) {
+            return $callback();
+        }
+
         $items = $this->all();
 
-        if (array_key_exists(md5_file($file), $items)) {
-            return $items[md5_file($file)];
+        if (array_key_exists($fileHash, $items)) {
+            return $items[$fileHash];
         }
 
         $values = $callback();
 
-        $this->persist(md5_file($file), $values);
+        $this->persist($fileHash, $values);
 
         return $values;
     }
@@ -78,11 +83,7 @@ final class Cache
 
             $cache = include $this->file();
 
-            if (! is_array($cache)) {
-                return [];
-            }
-
-            return $cache;
+            return is_array($cache) ? $cache : [];
         });
     }
 
@@ -91,18 +92,35 @@ final class Cache
      */
     private function persist(string $key, array $values): void
     {
-        $cache = $this->all();
-
-        $cache[$key] = $values;
-
-        // ensure folder exists
-        if (! is_dir(dirname($this->file()))) {
-            mkdir(dirname($this->file()), 0755, true);
+        $dirPath = dirname($this->file());
+        if (! is_dir($dirPath)) {
+            if (! mkdir($dirPath, 0777, true)) {
+                return;
+            }
+            chmod($dirPath, 0777);
         }
 
-        $this->withinLock(
-            fn () => file_put_contents($this->file(), '<?php return '.var_export($cache, true).';')
-        );
+        $this->withinLock(function () use ($key, $values) {
+            $filePath = $this->file();
+            $cache = [];
+
+            if (is_file($filePath)) {
+                $existingCache = include $filePath;
+                if (is_array($existingCache)) {
+                    $cache = $existingCache;
+                }
+            }
+
+            $cache[$key] = $values;
+
+            $content = '<?php return '.var_export($cache, true).';';
+
+            if (file_put_contents($filePath, $content) !== false) {
+                chmod($filePath, 0666);
+            }
+
+            return null;
+        });
     }
 
     /**
@@ -110,19 +128,35 @@ final class Cache
      */
     private function withinLock(callable $callback): mixed
     {
-        if (! is_file($this->file())) {
-            return $callback();
+        $filePath = $this->file();
+        $lockPath = $filePath.'.lock';
+        $dirPath = dirname($filePath);
+
+        if (! is_dir($dirPath)) {
+            mkdir($dirPath, 0777, true);
+            chmod($dirPath, 0777);
         }
 
-        $lock = fopen($this->file(), 'c+');
+        if (! is_file($lockPath)) {
+            touch($lockPath);
+            chmod($lockPath, 0666);
+        }
 
+        $lock = fopen($lockPath, 'c+');
         if ($lock === false) {
             return $callback();
         }
 
-        // wait for the lock
-        while (! flock($lock, LOCK_EX | LOCK_NB)) {
-            usleep(1);
+        $attempts = 0;
+        while (! flock($lock, LOCK_EX | LOCK_NB) && $attempts < 100) {
+            usleep(1000);
+            $attempts++;
+        }
+
+        if ($attempts >= 100) {
+            fclose($lock);
+
+            return $callback();
         }
 
         try {
