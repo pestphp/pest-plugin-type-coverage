@@ -12,7 +12,7 @@ final class Cache
     /**
      * The cache version.
      */
-    private const string CACHE_VERSION = 'v1';
+    private const string CACHE_VERSION = 'v2';
 
     /**
      * The cache instance.
