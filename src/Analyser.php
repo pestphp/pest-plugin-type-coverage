@@ -22,7 +22,7 @@ final class Analyser
     public static function analyse(array $files, Closure $postProcessedFile, Closure $onProcessedFile, Cache $cache): void
     {
         $testCase = new TestCaseForTypeCoverage('dummy');
-        $chunkOfFiles = array_chunk($files, Environment::maxProcesses());
+        $chunkOfFiles = Environment::supportsFork() ? array_chunk($files, Environment::maxProcesses()) : [$files];
         $promisses = [];
 
         foreach ($chunkOfFiles as $files) {
