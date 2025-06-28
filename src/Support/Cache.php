@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pest\TypeCoverage\Support;
 
+use PHPStan\Analyser\Error;
+
 /**
  * @internal
  */
@@ -43,7 +45,17 @@ final class Cache
 
         $values = $callback();
 
-        $this->persist($fileHash, $values);
+        foreach ($values as $value) {
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    if ($item instanceof Error) {
+                        (fn () => $this->canBeIgnored = null)->call($item);
+                    }
+                }
+            }
+        }
+
+        $this->persist(md5_file($file), $values);
 
         return $values;
     }
