@@ -128,7 +128,7 @@ class Plugin implements HandlesOriginalArguments
         Analyser::analyse(
             array_keys(iterator_to_array($files)),
             function (Result $result) use (&$totals): void {
-                $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
+                $path = str_replace(TestSuite::getInstance()->rootPath.DIRECTORY_SEPARATOR, '', $result->file);
 
                 $truncateAt = max(1, terminal()->width() - 12);
 
