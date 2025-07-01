@@ -6,6 +6,7 @@ namespace Pest\TypeCoverage;
 
 use Pest\Contracts\Plugins\HandlesOriginalArguments;
 use Pest\Plugins\Concerns\HandleArguments;
+use Pest\Plugins\Shard;
 use Pest\Support\View;
 use Pest\TestSuite;
 use Pest\TypeCoverage\Contracts\Logger;
@@ -13,6 +14,7 @@ use Pest\TypeCoverage\Logging\JsonLogger;
 use Pest\TypeCoverage\Logging\NullLogger;
 use Pest\TypeCoverage\Support\Cache;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -133,8 +135,25 @@ class Plugin implements HandlesOriginalArguments
 
         $terminalWidth = terminal()->width();
 
+        $input = new ArgvInput($arguments);
+
+        $total = 1;
+        $index = 1;
+
+        if ($input->hasParameterOption('--shard')) {
+            ['index' => $index, 'total' => $total] = Shard::getShard($input);
+        }
+
+        $files = iterator_to_array($files);
+
+        if ($total > 1) {
+            $files = array_filter($files, static function ($file) use ($index, $total): bool {
+                return (crc32($file->getRealPath()) % $total) === ($index - 1);
+            });
+        }
+
         Analyser::analyse(
-            array_keys(iterator_to_array($files)),
+            array_keys($files),
             function (Result $result) use (&$totals): void {
                 $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
                 $uncoveredLines = [];
