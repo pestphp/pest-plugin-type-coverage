@@ -32,4 +32,7 @@
             <directory suffix=".php">./tests/Fixtures</directory>
         </include>
     </source>
+    <php>
+        <env name="__PEST_PLUGIN_ENV" value="testing"/>
+    </php>
 </phpunit>

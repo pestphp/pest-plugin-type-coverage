@@ -39,8 +39,8 @@
         }
     },
     "scripts": {
-        "lint": "pint",
-        "test:lint": "pint --test",
+        "lint": "pint --parallel",
+        "test:lint": "pint --parallel --test",
         "test:unit": "pest",
         "test": [
             "@test:lint",

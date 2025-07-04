@@ -105,7 +105,7 @@ final class Analyser
         if ($useAsync === false) {
             pokio()->useSync();
         } else {
-            if (Environment::supportsFork()) {
+            if (Environment::supportsFork() && ! isset($_ENV['__PEST_PLUGIN_ENV'])) {
                 pokio()->useFork();
             }
         }
