@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pest\TypeCoverage\Support;
 
+use LogicException;
 use PHPStan\Analyser\Error;
 
 /**
@@ -14,7 +15,7 @@ final class Cache
     /**
      * The cache version.
      */
-    private const string CACHE_VERSION = 'v2';
+    private const string CACHE_VERSION = 'v3';
 
     /**
      * The cache instance.
@@ -41,6 +42,26 @@ final class Cache
     }
 
     /**
+     * Gets the cached contents for the given file.
+     *
+     * @return array{0: string, 1: array<int, Error>, 2: array<int, Error>}
+     *
+     * @throws LogicException
+     */
+    public function get(string $file): array
+    {
+        $fileHash = md5_file($file);
+
+        if ($fileHash === false) {
+            throw new LogicException('Failed to compute the hash for the file: '.$file);
+        }
+
+        $items = $this->all();
+
+        return $items[$fileHash] ?? throw new LogicException('No cache found for the file: '.$file);
+    }
+
+    /**
      * Flushes all the cache contents.
      */
     public function flush(): void
@@ -57,7 +78,7 @@ final class Cache
     {
         return dirname(__DIR__, 2)
             .DIRECTORY_SEPARATOR
-            .'temp'
+            .'.temp'
             .DIRECTORY_SEPARATOR
             .self::CACHE_VERSION
             .'.php';
@@ -82,8 +103,10 @@ final class Cache
     /**
      * Persists the cache contents.
      */
-    public function persist(string $key, array $values): void
+    public function persist(string $file, array $values): void
     {
+        $fileHash = md5_file($file);
+
         foreach ($values as $value) {
             if (is_array($value)) {
                 foreach ($value as $item) {
@@ -102,7 +125,7 @@ final class Cache
             chmod($dirPath, 0755);
         }
 
-        $this->withinLock(function () use ($key, $values) {
+        $this->withinLock(function () use ($fileHash, $values) {
             $filePath = $this->file();
             $cache = [];
 
@@ -113,7 +136,7 @@ final class Cache
                 }
             }
 
-            $cache[$key] = $values;
+            $cache[$fileHash] = $values;
 
             $content = '<?php return '.var_export($cache, true).';';
 

@@ -29,26 +29,21 @@ final class Analyser
         }
 
         $filesTouched = [];
-        $filesInCache = [];
 
         foreach ($files as $file) {
             if ($cache->has($file)) {
-                $filesInCache[] = $file;
+                [$file, $errors, $ignored] = $cache->get($file);
+
+                $result = Result::fromPHPStanErrors($file, $errors, $ignored);
+
+                $postProcessedFile($result);
+                $onProcessedFile($result);
             } else {
                 $filesTouched[] = $file;
             }
         }
 
         unset($files);
-
-        self::analyseChunks(
-            [$filesInCache],
-            $testCase,
-            $postProcessedFile,
-            $onProcessedFile,
-            $cache,
-            false,
-        );
 
         // next, if we don't have touched files, we can return early
 
@@ -85,7 +80,7 @@ final class Analyser
             $testCase,
             $postProcessedFile,
             $onProcessedFile,
-            $cache
+            $cache,
         );
     }
 
@@ -111,7 +106,7 @@ final class Analyser
         }
 
         foreach ($chunks as $files) {
-            $promises[] = async(function () use ($files, $testCase, $onProcessedFile) {
+            $promises[] = async(function () use ($cache, $files, $testCase, $onProcessedFile) {
                 $testCase->resetIgnoredErrors();
                 $results = [];
 
@@ -124,6 +119,8 @@ final class Analyser
 
                     $errors = array_values($errors);
                     $ignored = array_values($ignored);
+
+                    $cache->persist($file, [$file, $errors, $ignored]);
 
                     $result = Result::fromPHPStanErrors($file, $errors, $ignored);
 
