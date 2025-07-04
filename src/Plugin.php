@@ -128,7 +128,12 @@ class Plugin implements HandlesOriginalArguments
             $this->exit(1);
         }
 
-        $files = Finder::create()->in($source)->name('*.php')->files();
+        $files = Finder::create()
+            ->in($source)
+            ->name('*.php')
+            ->notName('*.blade.php')
+            ->files();
+
         $totals = [];
 
         $this->output->writeln(['']);
