@@ -68,18 +68,18 @@ final class Result
         $constantsCoverage = 100;
 
         foreach ($phpstanErrors as $error) {
-            if (str_contains($message = $error->getMessage(), 'property types')) {
-                $propertyCoverage = (int) explode(' ', explode('only ', $message)[1])[2];
+            if (str_contains($error->getMessage(), 'property types')) {
+                $propertyCoverage = 0;
             }
             if (str_contains($error->getMessage(), 'param types')) {
-                $paramCoverage = (int) explode(' ', explode('only ', $message)[1])[2];
+                $paramCoverage = 0;
             }
             if (str_contains($error->getMessage(), 'return types')) {
-                $returnTypeCoverage = (int) explode(' ', explode('only ', $message)[1])[2];
+                $returnTypeCoverage = 0;
             }
 
             if (str_contains($error->getMessage(), 'constant types')) {
-                $constantsCoverage = (int) explode(' ', explode('only ', $message)[1])[2];
+                $constantsCoverage = 0;
             }
         }
 

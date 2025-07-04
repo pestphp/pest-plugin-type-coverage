@@ -19,11 +19,11 @@ test('output with `--no-cache`', function () {
     expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--no-cache']))->toThrow(Exception::class, 0)
         ->and($output->fetch())->toContain(
             '.. 100%',
-            '.. pr12 87',
-            '.. co14, pr16, pa18, pa18, rt18 12',
-            '.. co14 87',
+            '.. pr12 75',
+            '.. co14, pr16, pa18, pa18, rt18 0',
+            '.. co14 75',
             '.. rt12 75',
-            '.. pa12 87',
+            '.. pa12 75',
         );
 });
 
@@ -40,11 +40,11 @@ test('output', function () {
     expect(fn () => $plugin->handleOriginalArguments(['--type-coverage']))->toThrow(Exception::class, 0)
         ->and($output->fetch())->toContain(
             '.. 100%',
-            '.. pr12 87',
-            '.. co14, pr16, pa18, pa18, rt18 12',
-            '.. co14 87',
+            '.. pr12 75',
+            '.. co14, pr16, pa18, pa18, rt18 0',
+            '.. co14 75',
             '.. rt12 75',
-            '.. pa12 87',
+            '.. pa12 75',
         );
 });
 
@@ -60,11 +60,11 @@ test('output with --compact', function () {
 
     expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--compact']))->toThrow(Exception::class, 0)
         ->and($output->fetch())->toContain(
-            '.. pr12 87',
-            '.. co14, pr16, pa18, pa18, rt18 12',
-            '.. co14 87',
+            '.. pr12 75',
+            '.. co14, pr16, pa18, pa18, rt18 0',
+            '.. co14 75',
             '.. rt12 75',
-            '.. pa12 87',
+            '.. pa12 75',
         )->not->toContain('.. 100%');
 });
 

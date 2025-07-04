@@ -25,39 +25,19 @@ final class Cache
     }
 
     /**
-     * Gets the cache contents.
-     *
-     * @param  callable(): array  $callback
-     * @return array<int, string>
+     * Checks if the cache contains the given file.
      */
-    public function get(string $file, callable $callback): array
+    public function has(string $file): bool
     {
         $fileHash = md5_file($file);
+
         if ($fileHash === false) {
-            return $callback();
+            return false;
         }
 
         $items = $this->all();
 
-        if (array_key_exists($fileHash, $items)) {
-            return $items[$fileHash];
-        }
-
-        $values = $callback();
-
-        foreach ($values as $value) {
-            if (is_array($value)) {
-                foreach ($value as $item) {
-                    if ($item instanceof Error) {
-                        (fn () => $this->canBeIgnored = null)->call($item);
-                    }
-                }
-            }
-        }
-
-        $this->persist(md5_file($file), $values);
-
-        return $values;
+        return array_key_exists($fileHash, $items);
     }
 
     /**
@@ -102,14 +82,24 @@ final class Cache
     /**
      * Persists the cache contents.
      */
-    private function persist(string $key, array $values): void
+    public function persist(string $key, array $values): void
     {
+        foreach ($values as $value) {
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    if ($item instanceof Error) {
+                        (fn () => $this->canBeIgnored = null)->call($item);
+                    }
+                }
+            }
+        }
+
         $dirPath = dirname($this->file());
         if (! is_dir($dirPath)) {
-            if (! mkdir($dirPath, 0777, true)) {
+            if (! mkdir($dirPath, 0755, true)) {
                 return;
             }
-            chmod($dirPath, 0777);
+            chmod($dirPath, 0755);
         }
 
         $this->withinLock(function () use ($key, $values) {
@@ -145,8 +135,8 @@ final class Cache
         $dirPath = dirname($filePath);
 
         if (! is_dir($dirPath)) {
-            mkdir($dirPath, 0777, true);
-            chmod($dirPath, 0777);
+            mkdir($dirPath, 0755, true);
+            chmod($dirPath, 0755);
         }
 
         if (! is_file($lockPath)) {
