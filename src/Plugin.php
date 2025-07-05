@@ -162,7 +162,7 @@ class Plugin implements HandlesOriginalArguments
         Analyser::analyse(
             array_keys($files),
             function (Result $result) use (&$totals): void {
-                $path = str_replace(TestSuite::getInstance()->rootPath.'/', '', $result->file);
+                $path = str_replace(TestSuite::getInstance()->rootPath.DIRECTORY_SEPARATOR, '', $result->file);
                 $uncoveredLines = [];
                 $uncoveredLinesIgnored = [];
 
@@ -239,7 +239,6 @@ class Plugin implements HandlesOriginalArguments
 
         $exitCode = (int) ($coverage < $this->coverageMin);
 
-        // in seconds, with 2 decimal places
         $duration = number_format(microtime(true) - $startTime, 2, '.', '');
 
         if ($exitCode === 1) {
@@ -256,7 +255,7 @@ class Plugin implements HandlesOriginalArguments
                 <div class="mx-2">
                     <hr class="text-gray" />
                     <div class="w-full text-right">
-                        <span class="ml-1 font-bold"><span class="text-gray">({$duration}s)</span> Total:    {$totalCoverageAsString} %</span>
+                        <span class="ml-1 font-bold"><span class="text-gray">({$duration}s)</span> Total: {$totalCoverageAsString} %</span>
                     </div>
                 </div>
             HTML);
