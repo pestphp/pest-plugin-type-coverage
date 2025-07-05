@@ -9,6 +9,8 @@ namespace Tests\Fixtures;
  */
 final class All
 {
+    use Concern;
+
     public const string FOO = 'foo';
 
     public const BAZ = 'baz';
