@@ -136,6 +136,11 @@ class Plugin implements HandlesOriginalArguments
             ->notName('*.blade.php')
             ->files();
 
+        $files = array_filter(
+            iterator_to_array($files),
+            fn (string $file): bool => ! str_contains(file_get_contents($file), 'trait '),
+        );
+
         $totals = [];
 
         $this->output->writeln(['']);
@@ -150,8 +155,6 @@ class Plugin implements HandlesOriginalArguments
         if ($input->hasParameterOption('--shard')) {
             ['index' => $index, 'total' => $total] = Shard::getShard($input);
         }
-
-        $files = iterator_to_array($files);
 
         if ($total > 1) {
             $files = array_filter($files, static function ($file) use ($index, $total): bool {
