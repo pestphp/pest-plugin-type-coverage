@@ -69,6 +69,8 @@ class Plugin implements HandlesOriginalArguments
             $this->cache->flush();
         }
 
+        $startTime = microtime(true);
+
         foreach ($arguments as $argument) {
             if (str_starts_with($argument, '--min')) {
                 // grab the value of the --min argument
@@ -237,6 +239,9 @@ class Plugin implements HandlesOriginalArguments
 
         $exitCode = (int) ($coverage < $this->coverageMin);
 
+        // in seconds, with 2 decimal places
+        $duration = number_format(microtime(true) - $startTime, 2, '.', '');
+
         if ($exitCode === 1) {
             View::render('components.badge', [
                 'type' => 'ERROR',
@@ -251,7 +256,7 @@ class Plugin implements HandlesOriginalArguments
                 <div class="mx-2">
                     <hr class="text-gray" />
                     <div class="w-full text-right">
-                        <span class="ml-1 font-bold">Total: {$totalCoverageAsString} %</span>
+                        <span class="ml-1 font-bold"><span class="text-gray">({$duration}s)</span> Total:    {$totalCoverageAsString} %</span>
                     </div>
                 </div>
             HTML);
