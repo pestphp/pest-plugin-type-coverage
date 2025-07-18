@@ -20,7 +20,7 @@ test('output with `--no-cache`', function () {
         ->and($output->fetch())->toContain(
             '.. 100%',
             '.. pr12 75',
-            '.. co14, pr16, pa18, pa18, rt18 0',
+            '.. co16, pr18, pa20, pa20, rt20 0',
             '.. co14 75',
             '.. rt12 75',
             '.. pa12 75',
@@ -41,7 +41,7 @@ test('output', function () {
         ->and($output->fetch())->toContain(
             '.. 100%',
             '.. pr12 75',
-            '.. co14, pr16, pa18, pa18, rt18 0',
+            '.. co16, pr18, pa20, pa20, rt20 0',
             '.. co14 75',
             '.. rt12 75',
             '.. pa12 75',
@@ -61,7 +61,7 @@ test('output with --compact', function () {
     expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--compact']))->toThrow(Exception::class, 0)
         ->and($output->fetch())->toContain(
             '.. pr12 75',
-            '.. co14, pr16, pa18, pa18, rt18 0',
+            '.. co16, pr18, pa20, pa20, rt20',
             '.. co14 75',
             '.. rt12 75',
             '.. pa12 75',
