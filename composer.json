@@ -47,9 +47,11 @@
         "lint": "pint --parallel",
         "test:lint": "pint --parallel --test",
         "test:unit": "pest",
+        "test:unit-parallel": "pest --parallel",
         "test": [
             "@test:lint",
-            "@test:unit"
+            "@test:unit",
+            "@test:unit-parallel"
         ]
     },
     "extra": {
