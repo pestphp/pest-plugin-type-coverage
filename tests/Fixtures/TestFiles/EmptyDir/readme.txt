@@ -1,0 +1,1 @@
+This directory contains no PHP files and is used for testing scenarios where no PHP files are found.

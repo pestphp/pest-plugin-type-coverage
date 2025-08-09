@@ -1,0 +1,1 @@
+This is a non-PHP file that should be ignored during file resolution.
