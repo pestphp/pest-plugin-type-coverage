@@ -63,7 +63,10 @@ final class Analyser
             false,
         );
 
-        $maxProcesses = Environment::maxProcesses() / 3;
+        $maxProcesses = (Environment::supportsFork() && ! isset($_ENV['__PEST_PLUGIN_ENV']))
+            ? (Environment::maxProcesses() / 3)
+            : 1;
+
         $maxProcesses = max(1, $maxProcesses);
 
         $chunkOfFiles = array_fill(0, $maxProcesses, []);
