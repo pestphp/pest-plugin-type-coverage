@@ -119,7 +119,8 @@ class Plugin implements HandlesOriginalArguments
             }
         }
 
-        $source = ConfigurationSourceDetector::detect();
+        $configArg = current(array_filter($arguments, fn ($arg) => str_starts_with($arg, '--configuration=')));
+        $source = ConfigurationSourceDetector::detect($configArg ? [$configArg] : []);
 
         if ($source === []) {
             View::render('components.badge', [
