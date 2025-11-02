@@ -18,11 +18,12 @@ final class ConfigurationSourceDetector
     /**
      * Detects the "source" of the configuration.
      *
+     * @param  array<int, string>  $arguments
      * @return array<int, string>
      */
-    public static function detect(): array
+    public static function detect(array $arguments = []): array
     {
-        $cliConfiguration = (new Builder)->fromParameters([]);
+        $cliConfiguration = (new Builder)->fromParameters($arguments);
         $configurationFile = (new XmlConfigurationFileFinder)->find($cliConfiguration);
         $xmlConfiguration = DefaultConfiguration::create();
 
