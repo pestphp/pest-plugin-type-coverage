@@ -16,7 +16,6 @@ use Pest\TypeCoverage\Support\Cache;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 
 use function Termwind\render;
 use function Termwind\renderUsing;
@@ -119,10 +118,39 @@ class Plugin implements HandlesOriginalArguments
             }
         }
 
-        $configArg = current(array_filter($arguments, fn ($arg) => str_starts_with($arg, '--configuration=')));
-        $source = ConfigurationSourceDetector::detect($configArg ? [$configArg] : []);
+        // Normalize configuration argument to support: --configuration=, --configuration <file>, -c <file>, -c=<file>
+        $normalizedConfigArg = null;
+        foreach ($arguments as $index => $arg) {
+            if (str_starts_with($arg, '--configuration=')) {
+                $normalizedConfigArg = $arg;
+                break;
+            }
 
-        if ($source === []) {
+            if ($arg === '--configuration') {
+                $value = $arguments[$index + 1] ?? null;
+                if ($value !== null) {
+                    $normalizedConfigArg = '--configuration='.$value;
+                    break;
+                }
+            }
+
+            if ($arg === '-c') {
+                $value = $arguments[$index + 1] ?? null;
+                if ($value !== null) {
+                    $normalizedConfigArg = '--configuration='.$value;
+                    break;
+                }
+            }
+
+            if (str_starts_with($arg, '-c=')) {
+                $normalizedConfigArg = '--configuration='.substr($arg, 3);
+                break;
+            }
+        }
+
+        $files = ConfigurationSourceDetector::detect($normalizedConfigArg ? [$normalizedConfigArg] : []);
+
+        if ($files === []) {
             View::render('components.badge', [
                 'type' => 'ERROR',
                 'content' => 'No source section found. Did you forget to add a `source` section to your `phpunit.xml` file?',
@@ -131,16 +159,11 @@ class Plugin implements HandlesOriginalArguments
             $this->exit(1);
         }
 
-        $files = Finder::create()
-            ->in($source)
-            ->name('*.php')
-            ->notName('*.blade.php')
-            ->files();
-
-        $files = array_filter(
-            iterator_to_array($files),
-            fn (string $file): bool => ! str_contains(file_get_contents($file), 'trait '),
-        );
+        // Filter out traits
+        $files = array_values(array_filter(
+            $files,
+            static fn (string $file): bool => is_string($file) && is_file($file) && ! str_contains((string) file_get_contents($file), 'trait '),
+        ));
 
         $totals = [];
 
@@ -158,13 +181,13 @@ class Plugin implements HandlesOriginalArguments
         }
 
         if ($total > 1) {
-            $files = array_filter($files, static function ($file) use ($index, $total): bool {
-                return (crc32($file->getRealPath()) % $total) === ($index - 1);
-            });
+            $files = array_values(array_filter($files, static function (string $file) use ($index, $total): bool {
+                return (crc32((string) realpath($file)) % $total) === ($index - 1);
+            }));
         }
 
         Analyser::analyse(
-            array_keys($files),
+            $files,
             function (Result $result) use (&$totals): void {
                 $path = str_replace(TestSuite::getInstance()->rootPath.DIRECTORY_SEPARATOR, '', $result->file);
                 $uncoveredLines = [];
