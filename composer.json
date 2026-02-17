@@ -15,10 +15,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "nunomaduro/pokio": "^0.1.1",
+        "nunomaduro/pokio": "^0.1.2",
         "pestphp/pest-plugin": "^5.0.0",
-        "phpstan/phpstan": "^1.12.24|^2.1.31",
-        "tomasvotruba/type-coverage": "^1.0.0|^2.0.2"
+        "phpstan/phpstan": "^1.12.24|^2.1.39",
+        "tomasvotruba/type-coverage": "^1.0.0|^2.1.0"
     },
     "autoload": {
         "psr-4": {
