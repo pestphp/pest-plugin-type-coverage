@@ -162,27 +162,12 @@ final class Cache
             chmod($dirPath, 0755);
         }
 
-        if (! is_file($lockPath)) {
-            touch($lockPath);
-            chmod($lockPath, 0666);
-        }
-
         $lock = fopen($lockPath, 'c+');
         if ($lock === false) {
             return $callback();
         }
 
-        $attempts = 0;
-        while (! flock($lock, LOCK_EX | LOCK_NB) && $attempts < 100) {
-            usleep(1000);
-            $attempts++;
-        }
-
-        if ($attempts >= 100) {
-            fclose($lock);
-
-            return $callback();
-        }
+        flock($lock, LOCK_EX);
 
         try {
             return $callback();
