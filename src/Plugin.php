@@ -65,7 +65,9 @@ class Plugin implements HandlesOriginalArguments
             return;
         }
 
-        if ($this->hasArgument('--no-cache', $arguments)) {
+        $noCache = $this->hasArgument('--no-cache', $arguments);
+
+        if ($noCache) {
             $this->cache->flush();
         }
 
@@ -234,7 +236,7 @@ class Plugin implements HandlesOriginalArguments
                 </div>
                 HTML);
             },
-            $this->cache,
+            $noCache ? null : $this->cache,
         );
 
         $coverage = array_sum($totals) / count($totals);

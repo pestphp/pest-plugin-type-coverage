@@ -20,7 +20,7 @@ final class Analyser
      * @param  array<int, string>  $files
      * @param  Closure(Result): void  $callback
      */
-    public static function analyse(array $files, Closure $postProcessedFile, Closure $onProcessedFile, Cache $cache): void
+    public static function analyse(array $files, Closure $postProcessedFile, Closure $onProcessedFile, ?Cache $cache): void
     {
         $testCase = new TestCaseForTypeCoverage('dummy');
 
@@ -31,7 +31,7 @@ final class Analyser
         $filesTouched = [];
 
         foreach ($files as $file) {
-            if ($cache->has($file)) {
+            if ($cache !== null && $cache->has($file)) {
                 [$file, $errors, $ignored] = $cache->get($file);
 
                 $result = Result::fromPHPStanErrors($file, $errors, $ignored);
@@ -95,7 +95,7 @@ final class Analyser
         TestCaseForTypeCoverage $testCase,
         Closure $postProcessedFile,
         Closure $onProcessedFile,
-        Cache $cache,
+        ?Cache $cache,
         bool $useAsync = true,
     ): void {
         $promises = [];
@@ -123,7 +123,7 @@ final class Analyser
                     $errors = array_values($errors);
                     $ignored = array_values($ignored);
 
-                    $cache->persist($file, [$file, $errors, $ignored]);
+                    $cache?->persist($file, [$file, $errors, $ignored]);
 
                     $result = Result::fromPHPStanErrors($file, $errors, $ignored);
 
