@@ -22,7 +22,7 @@ final class Analyser
      */
     public static function analyse(array $files, Closure $postProcessedFile, Closure $onProcessedFile, Cache $cache): void
     {
-        $testCase = new TestCaseForTypeCoverage('dummy');
+        $testCase = new TestCaseForTypeCoverage('test_dummy');
 
         if (count($files) === 0) {
             return;
