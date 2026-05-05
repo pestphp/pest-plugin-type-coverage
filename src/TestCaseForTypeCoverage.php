@@ -113,17 +113,45 @@ final class TestCaseForTypeCoverage extends RuleTestCase
                 $ruleErrors = $rule->processNode($node, $scope);
                 foreach ($ruleErrors as $ruleError) {
                     if ($this->ignored($ruleError)) {
-                        $this->ignoredErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, [], $node);
+                        $this->ignoredErrors[] = $this->callTransform($ruleErrorTransformer, $ruleError, $scope, $nodeType, $node);
 
                         continue;
                     }
 
-                    $actualErrors[] = $ruleErrorTransformer->transform($ruleError, $scope, [], $node);
+                    $actualErrors[] = $this->callTransform($ruleErrorTransformer, $ruleError, $scope, $nodeType, $node);
                 }
             }
         }
 
         return $actualErrors;
+    }
+
+    /**
+     * Calls RuleErrorTransformer::transform() using the correct argument signature for the
+     * installed PHPStan version:
+     *   - PHPStan 1.x: transform(RuleError, Scope, string $nodeType, int $nodeLine)
+     *   - PHPStan 2.x: transform(RuleError, Scope, array $fileNodes, Node $node)
+     */
+    private function callTransform(
+        RuleErrorTransformer $transformer,
+        RuleError $ruleError,
+        Scope $scope,
+        string $nodeType,
+        CollectedDataNode $node,
+    ): Error {
+        static $isLegacySignature = null;
+        if ($isLegacySignature === null) {
+            $thirdParam = (new \ReflectionMethod($transformer, 'transform'))->getParameters()[2];
+            $isLegacySignature = (string) $thirdParam->getType() === 'string';
+        }
+
+        if ($isLegacySignature) {
+            // PHPStan 1.x: third arg is string $nodeType, fourth is int $nodeLine
+            return $transformer->transform($ruleError, $scope, $nodeType, $node->getLine()); // @phpstan-ignore-line
+        }
+
+        // PHPStan 2.x: third arg is array $fileNodes, fourth is Node $node
+        return $transformer->transform($ruleError, $scope, [], $node); // @phpstan-ignore-line
     }
 
     /**
