@@ -12,6 +12,7 @@ use Pest\TypeCoverage\Contracts\Logger;
 use Pest\TypeCoverage\Logging\JsonLogger;
 use Pest\TypeCoverage\Logging\NullLogger;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
+use Pest\TypeCoverage\Support\FileResolver;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -63,6 +64,8 @@ class Plugin implements HandlesOriginalArguments
 
         $startTime = microtime(true);
 
+        $filePaths = $this->extractFileArguments($arguments);
+
         foreach ($arguments as $argument) {
             if (str_starts_with($argument, '--min')) {
                 // grab the value of the --min argument
@@ -111,24 +114,39 @@ class Plugin implements HandlesOriginalArguments
             }
         }
 
-        $source = ConfigurationSourceDetector::detect();
+        if ($filePaths !== []) {
+            $resolvedFiles = FileResolver::resolve($filePaths);
 
-        if ($source === []) {
-            View::render('components.badge', [
-                'type' => 'ERROR',
-                'content' => 'No source section found. Did you forget to add a `source` section to your `phpunit.xml` file?',
-            ]);
+            if ($resolvedFiles === []) {
+                View::render('components.badge', [
+                    'type' => 'ERROR',
+                    'content' => 'No PHP files found in the specified paths.',
+                ]);
 
-            $this->exit(1);
+                $this->exit(1);
+            }
+
+            $files = array_combine($resolvedFiles, $resolvedFiles);
+        } else {
+            $source = ConfigurationSourceDetector::detect();
+
+            if ($source === []) {
+                View::render('components.badge', [
+                    'type' => 'ERROR',
+                    'content' => 'No source section found. Did you forget to add a `source` section to your `phpunit.xml` file?',
+                ]);
+
+                $this->exit(1);
+            }
+
+            $files = Finder::create()->in($source)->name('*.php')->files();
         }
-
-        $files = Finder::create()->in($source)->name('*.php')->files();
         $totals = [];
 
         $this->output->writeln(['']);
 
         Analyser::analyse(
-            array_keys(iterator_to_array($files)),
+            is_array($files) ? array_keys($files) : array_keys(iterator_to_array($files)),
             function (Result $result) use (&$totals): void {
                 $path = str_replace(TestSuite::getInstance()->rootPath.DIRECTORY_SEPARATOR, '', $result->file);
 
@@ -213,6 +231,32 @@ class Plugin implements HandlesOriginalArguments
         }
 
         $this->exit($exitCode);
+    }
+
+    /**
+     * Extracts file/directory arguments from the command line that come after the -- separator.
+     *
+     * @param  array<int, string>  $arguments
+     * @return array<int, string>
+     */
+    public function extractFileArguments(array $arguments): array
+    {
+        $filePaths = [];
+        $afterDoubleDash = false;
+
+        foreach ($arguments as $argument) {
+            if ($argument === '--') {
+                $afterDoubleDash = true;
+
+                continue;
+            }
+
+            if ($afterDoubleDash && ! str_starts_with($argument, '-')) {
+                $filePaths[] = $argument;
+            }
+        }
+
+        return $filePaths;
     }
 
     /**
