@@ -15,7 +15,7 @@ final class Cache
     /**
      * The cache version.
      */
-    private const string CACHE_VERSION = 'v3';
+    private const string CACHE_VERSION = 'v4';
 
     /**
      * The cache instance.
@@ -138,7 +138,7 @@ final class Cache
 
             $cache[$fileHash] = $values;
 
-            $content = '<?php return '.var_export($cache, true).';';
+            $content = '<?php return unserialize('.var_export(serialize($cache), true).');';
 
             if (file_put_contents($filePath, $content) !== false) {
                 chmod($filePath, 0666);
