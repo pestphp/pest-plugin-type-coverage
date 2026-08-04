@@ -12,8 +12,9 @@ use Pest\TestSuite;
 use Pest\TypeCoverage\Contracts\Logger;
 use Pest\TypeCoverage\Logging\JsonLogger;
 use Pest\TypeCoverage\Logging\NullLogger;
-use Pest\TypeCoverage\Support\Cache;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
+use Pest\TypeCoverage\Support\FileCache;
+use Pest\TypeCoverage\Support\NullCache;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
@@ -51,7 +52,7 @@ class Plugin implements HandlesOriginalArguments
      */
     public function __construct(
         private readonly OutputInterface $output,
-        private readonly Cache $cache,
+        private readonly FileCache $cache,
     ) {
         $this->coverageLogger = new NullLogger;
     }
@@ -65,8 +66,12 @@ class Plugin implements HandlesOriginalArguments
             return;
         }
 
+        $cache = $this->cache;
+
         if ($this->hasArgument('--no-cache', $arguments)) {
             $this->cache->flush();
+
+            $cache = new NullCache;
         }
 
         $startTime = microtime(true);
@@ -234,7 +239,7 @@ class Plugin implements HandlesOriginalArguments
                 </div>
                 HTML);
             },
-            $this->cache,
+            $cache,
         );
 
         $coverage = array_sum($totals) / count($totals);

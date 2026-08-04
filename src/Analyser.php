@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pest\TypeCoverage;
 
 use Closure;
-use Pest\TypeCoverage\Support\Cache;
+use Pest\TypeCoverage\Contracts\Cache;
 use PHPStan\Analyser\Error;
 use Pokio\Environment;
 

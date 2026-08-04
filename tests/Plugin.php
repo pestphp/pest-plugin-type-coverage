@@ -1,14 +1,14 @@
 <?php
 
 use Pest\TypeCoverage\Plugin;
-use Pest\TypeCoverage\Support\Cache;
+use Pest\TypeCoverage\Support\FileCache;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 beforeEach(fn () => pokio()->useSync());
 
 test('output with `--no-cache`', function () {
     $output = new BufferedOutput;
-    $plugin = new class($output, new Cache) extends Plugin
+    $plugin = new class($output, new FileCache) extends Plugin
     {
         public function exit(int $code): never
         {
@@ -29,7 +29,7 @@ test('output with `--no-cache`', function () {
 
 test('output', function () {
     $output = new BufferedOutput;
-    $plugin = new class($output, new Cache) extends Plugin
+    $plugin = new class($output, new FileCache) extends Plugin
     {
         public function exit(int $code): never
         {
@@ -50,7 +50,7 @@ test('output', function () {
 
 test('output with --compact', function () {
     $output = new BufferedOutput;
-    $plugin = new class($output, new Cache) extends Plugin
+    $plugin = new class($output, new FileCache) extends Plugin
     {
         public function exit(int $code): never
         {

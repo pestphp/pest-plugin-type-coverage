@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Pest\TypeCoverage\Support;
 
 use LogicException;
+use Pest\TypeCoverage\Contracts\Cache;
 use PHPStan\Analyser\Error;
 
 /**
  * @internal
  */
-final class Cache
+final class FileCache implements Cache
 {
     /**
      * The cache version.
@@ -26,7 +27,7 @@ final class Cache
     }
 
     /**
-     * Checks if the cache contains the given file.
+     * {@inheritdoc}
      */
     public function has(string $file): bool
     {
@@ -42,11 +43,7 @@ final class Cache
     }
 
     /**
-     * Gets the cached contents for the given file.
-     *
-     * @return array{0: string, 1: array<int, Error>, 2: array<int, Error>}
-     *
-     * @throws LogicException
+     * {@inheritdoc}
      */
     public function get(string $file): array
     {
@@ -62,7 +59,7 @@ final class Cache
     }
 
     /**
-     * Flushes all the cache contents.
+     * {@inheritdoc}
      */
     public function flush(): void
     {
@@ -101,7 +98,7 @@ final class Cache
     }
 
     /**
-     * Persists the cache contents.
+     * {@inheritdoc}
      */
     public function persist(string $file, array $values): void
     {
