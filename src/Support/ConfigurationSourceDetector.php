@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pest\TypeCoverage\Support;
 
+use PHPUnit\Event\Facade;
 use PHPUnit\TextUI\CliArguments\Builder;
 use PHPUnit\TextUI\CliArguments\XmlConfigurationFileFinder;
 use PHPUnit\TextUI\Configuration\FilterDirectory;
@@ -23,12 +24,12 @@ final class ConfigurationSourceDetector
      */
     public static function detect(array $arguments = []): array
     {
-        $cliConfiguration = (new Builder)->fromParameters($arguments);
+        $cliConfiguration = new Builder(Facade::emitter())->fromParameters($arguments);
         $configurationFile = (new XmlConfigurationFileFinder)->find($cliConfiguration);
         $xmlConfiguration = DefaultConfiguration::create();
 
         if (is_string($configurationFile)) {
-            $xmlConfiguration = (new Loader)->load($configurationFile);
+            $xmlConfiguration = new Loader(Facade::emitter())->load($configurationFile);
         }
 
         return array_map(
