@@ -19,6 +19,11 @@ final class FileCache implements Cache
     private const string CACHE_VERSION = 'v3';
 
     /**
+     * The cache contents, loaded once per process.
+     */
+    private ?array $items = null;
+
+    /**
      * The cache instance.
      */
     public static function instance(): self
@@ -63,6 +68,8 @@ final class FileCache implements Cache
      */
     public function flush(): void
     {
+        $this->items = null;
+
         if (is_file($this->file())) {
             unlink($this->file());
         }
@@ -86,7 +93,7 @@ final class FileCache implements Cache
      */
     private function all(): array
     {
-        return $this->withinLock(function () {
+        return $this->items ??= $this->withinLock(function () {
             if (! is_file($this->file())) {
                 return [];
             }
@@ -102,6 +109,8 @@ final class FileCache implements Cache
      */
     public function persist(string $file, array $values): void
     {
+        $this->items = null;
+
         $fileHash = md5_file($file);
 
         foreach ($values as $value) {
