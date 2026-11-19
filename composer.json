@@ -17,8 +17,8 @@
         "php": "^8.3",
         "nunomaduro/pokio": "^1.0.0",
         "pestphp/pest-plugin": "^4.0.0",
-        "phpstan/phpstan": "^1.12.24|^2.1.46",
-        "tomasvotruba/type-coverage": "^1.0.0|^2.1.0"
+        "phpstan/phpstan": "^2.1.46",
+        "tomasvotruba/type-coverage": "^2.1.0"
     },
     "autoload": {
         "psr-4": {
