@@ -103,10 +103,15 @@ final class TestCaseForTypeCoverage extends RuleTestCase
 
         $ruleErrorTransformer = self::getContainer()->getByType(RuleErrorTransformer::class);
 
-        if ($analyserResult->getCollectedData() !== []) {
+        // PHPStan 2.3.6 removed `getCollectedData()` in favour of `getLazyCollectedData()`.
+        $collectedData = method_exists($analyserResult, 'getLazyCollectedData') // @phpstan-ignore function.alreadyNarrowedType
+            ? $analyserResult->getLazyCollectedData()->toArray()
+            : $analyserResult->getCollectedData(); // @phpstan-ignore method.notFound
+
+        if ($collectedData !== []) {
             $ruleRegistry = new DirectRegistry($this->getRules());
             $nodeType = CollectedDataNode::class;
-            $node = new CollectedDataNode($analyserResult->getCollectedData(), true);
+            $node = new CollectedDataNode($collectedData, true);
             $scopeFactory = $this->createScopeFactory($this->createReflectionProvider(), $this->getTypeSpecifier());
             $scope = $scopeFactory->create(ScopeContext::create('irrelevant'));
             foreach ($ruleRegistry->getRules($nodeType) as $rule) {
