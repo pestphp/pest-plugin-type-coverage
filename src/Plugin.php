@@ -144,7 +144,7 @@ class Plugin implements HandlesOriginalArguments
 
         $files = array_filter(
             iterator_to_array($files),
-            fn (string $file): bool => ! str_contains(file_get_contents($file), 'trait '),
+            fn (string $file): bool => ! $this->declaresTrait((string) file_get_contents($file)),
         );
 
         $totals = [];
@@ -273,6 +273,35 @@ class Plugin implements HandlesOriginalArguments
         }
 
         $this->exit($exitCode);
+    }
+
+    /**
+     * Whether the given code declares a trait.
+     *
+     * Without TOKEN_PARSE, `trait` used as a method, constant, enum case or named
+     * argument is also tokenized as T_TRAIT, so the keyword must be followed by a name.
+     */
+    private function declaresTrait(string $code): bool
+    {
+        if (stripos($code, 'trait') === false) {
+            return false;
+        }
+
+        $afterTrait = false;
+
+        foreach (\PhpToken::tokenize($code) as $token) {
+            if ($token->isIgnorable()) {
+                continue;
+            }
+
+            if ($afterTrait && $token->is(T_STRING)) {
+                return true;
+            }
+
+            $afterTrait = $token->is(T_TRAIT);
+        }
+
+        return false;
     }
 
     /**
