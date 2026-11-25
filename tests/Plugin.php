@@ -193,3 +193,47 @@ test('it can output to json', function () {
 
     unlink(__DIR__.'/../test.json');
 })->todo();
+
+test('files that only mention or use `trait` as an identifier are analysed', function () {
+    $output = new BufferedOutput;
+    $plugin = new class($output, new FileCache) extends Plugin
+    {
+        public function exit(int $code): never
+        {
+            throw new Exception($code);
+        }
+    };
+
+    expect(fn () => $plugin->handleOriginalArguments(['--type-coverage', '--no-cache']))->toThrow(Exception::class, 0)
+        ->and($output->fetch())
+        ->toMatch('/tests\/Fixtures\/MentionsTrait\.php \.+ pa14 75%/')
+        ->toMatch('/tests\/Fixtures\/MentionsTraitInString\.php \.+ pa12 75%/')
+        ->toMatch('/tests\/Fixtures\/TraitIdentifiers\.php \.+ pa14 75%/')
+        ->not->toContain('tests/Fixtures/Concern.php');
+});
+
+test('it detects trait declarations', function (string $code, bool $declaresTrait) {
+    $plugin = new Plugin(new BufferedOutput, new FileCache);
+
+    $detect = fn (string $code): bool => $this->declaresTrait($code);
+
+    expect($detect->call($plugin, "<?php\n\n{$code}"))->toBe($declaresTrait);
+})->with([
+    'declaration' => ['trait Foo {}', true],
+    'uppercase keyword' => ['TRAIT Foo {}', true],
+    'newline and tab separator' => ["trait\n\tFoo {}", true],
+    'comment between keyword and name' => ['trait /* comment */ Foo {}', true],
+    'declaration after a class' => ['class Bar {} trait Foo {}', true],
+    'comment' => ['// uses the trait Foo', false],
+    'doc comment' => ['/** uses the trait Foo */ class Bar {}', false],
+    'string' => ['echo \'trait Foo {}\';', false],
+    'heredoc' => ["echo <<<TXT\ntrait Foo {}\nTXT;", false],
+    'trait use' => ['class Bar { use Foo; }', false],
+    '__TRAIT__' => ['echo __TRAIT__;', false],
+    'method name' => ['class Bar { public function trait($value) {} }', false],
+    'static call' => ['Bar::trait();', false],
+    'instance call' => ['$bar->trait();', false],
+    'constant' => ['class Bar { public const TRAIT = 1; }', false],
+    'enum case' => ['enum Bar { case trait; }', false],
+    'named argument' => ['bar(trait: 1);', false],
+]);
