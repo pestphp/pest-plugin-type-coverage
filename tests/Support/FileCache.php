@@ -44,3 +44,34 @@ it('reads entries persisted after the first read', function () {
     expect($cache->has($file))->toBeTrue()
         ->and($cache->get($file))->toBe([$file, [], []]);
 });
+
+it('persists several files with a single write', function () {
+    $first = realpath(__DIR__.'/../Fixtures/All.php');
+    $second = realpath(__DIR__.'/../Fixtures/ReturnType.php');
+
+    (new FileCache)->persistMany([
+        $first => [$first, [], []],
+        $second => [$second, [], []],
+    ]);
+
+    $cache = new FileCache;
+
+    expect($cache->has($first))->toBeTrue()
+        ->and($cache->get($first))->toBe([$first, [], []])
+        ->and($cache->has($second))->toBeTrue()
+        ->and($cache->get($second))->toBe([$second, [], []]);
+});
+
+it('keeps the entries already in the cache file when persisting several files', function () {
+    $first = realpath(__DIR__.'/../Fixtures/All.php');
+    $second = realpath(__DIR__.'/../Fixtures/ReturnType.php');
+
+    (new FileCache)->persist($first, [$first, [], []]);
+
+    (new FileCache)->persistMany([$second => [$second, [], []]]);
+
+    $cache = new FileCache;
+
+    expect($cache->has($first))->toBeTrue()
+        ->and($cache->has($second))->toBeTrue();
+});

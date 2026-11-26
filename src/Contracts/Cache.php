@@ -34,6 +34,13 @@ interface Cache
     public function persist(string $file, array $values): void;
 
     /**
+     * Persists the cache contents of several files at once.
+     *
+     * @param  array<string, array{0: string, 1: array<int, Error>, 2: array<int, Error>}>  $entries
+     */
+    public function persistMany(array $entries): void;
+
+    /**
      * Flushes all the cache contents.
      */
     public function flush(): void;

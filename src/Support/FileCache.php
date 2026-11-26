@@ -109,18 +109,40 @@ final class FileCache implements Cache
      */
     public function persist(string $file, array $values): void
     {
+        $this->persistMany([$file => $values]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function persistMany(array $entries): void
+    {
         $this->contents = null;
 
-        $fileHash = md5_file($file);
+        $hashedEntries = [];
 
-        foreach ($values as $value) {
-            if (is_array($value)) {
-                foreach ($value as $item) {
-                    if ($item instanceof Error) {
-                        (fn () => $this->canBeIgnored = null)->call($item);
+        foreach ($entries as $file => $values) {
+            $fileHash = md5_file($file);
+
+            if ($fileHash === false) {
+                continue;
+            }
+
+            foreach ($values as $value) {
+                if (is_array($value)) {
+                    foreach ($value as $item) {
+                        if ($item instanceof Error) {
+                            (fn () => $this->canBeIgnored = null)->call($item);
+                        }
                     }
                 }
             }
+
+            $hashedEntries[$fileHash] = $values;
+        }
+
+        if ($hashedEntries === []) {
+            return;
         }
 
         $dirPath = dirname($this->file());
@@ -131,7 +153,7 @@ final class FileCache implements Cache
             chmod($dirPath, 0755);
         }
 
-        $this->withinLock(function () use ($fileHash, $values) {
+        $this->withinLock(function () use ($hashedEntries) {
             $filePath = $this->file();
             $cache = [];
 
@@ -142,7 +164,7 @@ final class FileCache implements Cache
                 }
             }
 
-            $cache[$fileHash] = $values;
+            $cache = array_replace($cache, $hashedEntries);
 
             $content = '<?php return '.var_export($cache, true).';';
 

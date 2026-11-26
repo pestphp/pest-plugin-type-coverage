@@ -112,6 +112,7 @@ final class Analyser
             $promises[] = async(function () use ($cache, $files, $testCase, $onProcessedFile) {
                 $testCase->resetIgnoredErrors();
                 $results = [];
+                $entries = [];
 
                 $analyserErrors = $testCase->gatherAnalyserErrors($files);
                 $analyserIgnored = $testCase->getIgnoredErrors();
@@ -123,7 +124,7 @@ final class Analyser
                     $errors = array_values($errors);
                     $ignored = array_values($ignored);
 
-                    $cache->persist($file, [$file, $errors, $ignored]);
+                    $entries[$file] = [$file, $errors, $ignored];
 
                     $result = Result::fromPHPStanErrors($file, $errors, $ignored);
 
@@ -131,6 +132,8 @@ final class Analyser
 
                     $results[] = $result;
                 }
+
+                $cache->persistMany($entries);
 
                 return $results;
             });
