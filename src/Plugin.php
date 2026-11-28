@@ -15,6 +15,7 @@ use Pest\TypeCoverage\Logging\NullLogger;
 use Pest\TypeCoverage\Support\ConfigurationSourceDetector;
 use Pest\TypeCoverage\Support\FileCache;
 use Pest\TypeCoverage\Support\NullCache;
+use Pest\TypeCoverage\Support\TotalCoverage;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
@@ -258,7 +259,7 @@ class Plugin implements HandlesOriginalArguments
         } else {
             $totalCoverageAsString = $coverage === 0
                 ? '0.0'
-                : number_format((float) $coverage, 1, '.', '');
+                : number_format(TotalCoverage::round((float) $coverage, 1), 1, '.', '');
 
             render(<<<HTML
                 <div class="mx-2">

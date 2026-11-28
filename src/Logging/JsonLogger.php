@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pest\TypeCoverage\Logging;
 
 use Pest\TypeCoverage\Contracts\Logger;
+use Pest\TypeCoverage\Support\TotalCoverage;
 
 /**
  * @internal
@@ -46,7 +47,7 @@ final class JsonLogger implements Logger
             'format' => 'pest',
             'coverage-min' => $this->coverageMin,
             'result' => $this->logs,
-            'total' => round(array_sum(array_column($this->logs, 'percentage')) / count($this->logs), 2),
+            'total' => TotalCoverage::round(array_sum(array_column($this->logs, 'percentage')) / count($this->logs), 2),
         ], JSON_THROW_ON_ERROR);
         file_put_contents($this->outputPath, $json);
     }
