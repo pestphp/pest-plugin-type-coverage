@@ -39,6 +39,14 @@ final class NullCache implements Cache
     /**
      * {@inheritdoc}
      */
+    public function persistMany(array $entries): void
+    {
+        //
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function flush(): void
     {
         //
